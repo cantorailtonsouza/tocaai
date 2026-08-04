@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "eventName": "Repertório da noite",
+    "intro": "Escolha uma playlist, encontre sua música favorita e envie seu pedido.",
+    "showLive": false,
+    "pixEnabled": true,
+    "pixKey": "",
+    "pixName": "Ailton Souza",
+    "pixCity": "Luziania",
+    "shareLink": "https://ailtonsouza.com.br/tocaai"
+  },
+  "playlists": {
+    "barzinho": {
+      "name": "Ailton Souza Barzinho",
+      "icon": "🎸",
+      "active": true,
+      "songs": {
+        "vida-vazia": {
+          "title": "Vida Vazia",
+          "artist": "Bruno & Marrone",
+          "favorite": true,
+          "active": true
+        },
+        "pagina-amigos": {
+          "title": "Página de Amigos",
+          "artist": "Chitãozinho & Xororó",
+          "favorite": false,
+          "active": true
+        }
+      }
+    }
+  }
+}

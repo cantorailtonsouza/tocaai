@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Painel • Toca Aí</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+<section class="login" id="loginView">
+  <form class="login-card" id="loginForm">
+    <img src="../assets/img/logo-ailton-souza.png" alt="Ailton Souza">
+    <small class="muted">PAINEL DO CANTOR</small>
+    <h1>Toca Aí • Ailton Souza</h1>
+    <label>E-mail<input id="loginEmail" type="email" required autocomplete="username"></label>
+    <label>Senha<input id="loginPassword" type="password" required autocomplete="current-password"></label>
+    <button class="btn btn-primary" id="loginButton" style="width:100%">Entrar</button>
+    <p id="loginError" class="error"></p>
+  </form>
+</section>
+
+<div class="app" id="panelView" hidden>
+  <header class="top"><div class="wrap topin">
+    <div class="brand"><img src="../assets/img/logo-ailton-souza.png" alt=""><div><small>PAINEL DO CANTOR</small><h1>Toca Aí</h1></div></div>
+    <div class="toolbar"><button class="btn btn-ghost" id="openPublic">Abrir página pública</button><button class="btn btn-danger" id="logoutBtn">Sair</button></div>
+  </div></header>
+
+  <main class="wrap section">
+    <section id="playlistsTab">
+      <div class="section-head"><div><h2>Minhas playlists</h2><span class="muted" id="playlistCount"></span></div><button class="btn btn-primary" id="newPlaylistBtn">+ Nova playlist</button></div>
+      <label class="search">⌕<input id="adminPlaylistSearch" placeholder="Buscar playlists..."></label>
+      <div class="grid" id="adminPlaylists" style="margin-top:16px"></div>
+    </section>
+
+    <section id="requestsTab" hidden>
+      <div class="section-head"><h2>Últimos pedidos</h2><span class="tag green" id="liveBadge">● AO VIVO</span></div>
+      <div class="toolbar" style="margin-bottom:14px">
+        <button class="pill active" data-hours="1">1h</button><button class="pill" data-hours="2">2h</button><button class="pill" data-hours="5">5h</button><button class="pill" data-hours="12">12h</button><button class="pill" data-hours="24">24h</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="muted">Pedidos</span><strong id="statRequests">0</strong></div>
+        <div class="stat"><span class="muted">Na fila</span><strong id="statQueue">0</strong></div>
+        <div class="stat"><span class="muted">Apoios</span><strong id="statTips">R$ 0</strong></div>
+        <div class="stat"><span class="muted">Mais pedida</span><strong id="statTop">—</strong></div>
+      </div>
+      <div class="grid" id="requestsList" style="margin-top:18px"></div>
+    </section>
+
+    <section id="shareTab" hidden>
+      <div class="card"><h2>Compartilhar repertório</h2><p class="muted">Compartilhe este link com seus clientes.</p>
+        <div class="sharebox"><input id="shareLink" value="https://ailtonsouza.com.br/tocaai" readonly><button class="btn btn-primary" id="copyLink">Copiar link</button><button class="btn btn-dark" id="shareBtn">Compartilhar</button></div>
+      </div>
+    </section>
+
+    <section id="configTab" hidden>
+      <div class="card"><div class="section-head"><h2>Configurações</h2><button class="btn btn-primary" id="saveSettings">Salvar</button></div>
+        <div class="form">
+          <div class="form-grid"><label>Nome do evento<input id="cfgEvent"></label><label>Texto inicial<input id="cfgIntro"></label></div>
+          <div class="form-grid"><label>Chave Pix<input id="cfgPixKey"></label><label>Nome do recebedor<input id="cfgPixName"></label></div>
+          <div class="form-grid"><label>Cidade Pix<input id="cfgPixCity"></label><label>Link público<input id="cfgShareLink" value="https://ailtonsouza.com.br/tocaai"></label></div>
+          <label><input id="cfgPixEnabled" type="checkbox"> Ativar apoio opcional via Pix</label>
+          <label><input id="cfgShowLive" type="checkbox"> Modo Show — aceitar pedidos</label>
+          <div class="spotify-note"><strong>Busca musical:</strong> integrada à YouTube Data API v3 por meio de um Cloudflare Worker protegido. O painel salva somente nome, artista, miniatura e identificador da fonte.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="active" data-tab="playlistsTab"><span>☷</span>Playlists</button>
+    <button data-tab="requestsTab"><span>♫</span>Pedidos</button>
+    <button data-tab="shareTab"><span>↗</span>Compartilhar</button>
+    <button data-tab="configTab"><span>⚙</span>Config</button>
+  </nav>
+</div>
+
+<div class="modal" id="playlistModal"><div class="sheet"><div class="grab"></div>
+  <h2 id="playlistModalTitle">Nova playlist</h2>
+  <form class="form" id="playlistForm">
+    <input id="playlistId" type="hidden">
+    <div class="form-grid"><label>Nome<input id="playlistName" required maxlength="80"></label><label>Ícone<input id="playlistIcon" value="🎵" maxlength="4"></label></div>
+    <label>URL da capa (opcional)<input id="playlistCoverUrl" type="url"></label>
+    <label><input id="playlistActive" type="checkbox" checked> Playlist ativa</label>
+    <button class="btn btn-primary">Salvar playlist</button>
+    <button class="btn btn-ghost" type="button" id="closePlaylistModal">Cancelar</button>
+  </form>
+</div></div>
+
+<div class="modal" id="songsModal"><div class="sheet"><div class="grab"></div>
+  <div class="section-head"><div><small class="muted">PLAYLIST</small><h2 id="songsModalTitle"></h2><p class="muted" id="songsCount"></p></div><button class="btn btn-ghost" id="closeSongsModal">Fechar</button></div>
+  <button class="btn btn-primary" id="newSongBtn">+ Adicionar música</button>
+  <div class="grid" id="adminSongs" style="margin-top:14px"></div>
+</div></div>
+
+<div class="modal" id="songModal"><div class="sheet"><div class="grab"></div>
+  <div class="section-head">
+    <div><small class="muted">ADICIONAR À PLAYLIST</small><h2>Pesquisar música</h2></div>
+    <button class="btn btn-ghost" type="button" id="closeSongModal">Fechar</button>
+  </div>
+  <form class="search music-search" id="youtubeSearchForm">
+    ⌕<input id="youtubeSearchInput" placeholder="Digite música ou artista" minlength="2" required autocomplete="off">
+    <button class="btn btn-primary" id="youtubeSearchBtn">Pesquisar</button>
+  </form>
+  <p class="muted" id="youtubeSearchStatus">Pesquise pelo nome da música ou do artista.</p>
+  <div class="grid search-results" id="youtubeResults"></div>
+  <details class="manual-add">
+    <summary>Adicionar manualmente</summary>
+    <form class="form" id="songForm">
+      <label>Nome da música<input id="songName" required maxlength="120"></label>
+      <label>Artista<input id="songArtist" required maxlength="120"></label>
+      <label><input id="songFavorite" type="checkbox"> Favorita do cantor</label>
+      <button class="btn btn-primary">Adicionar manualmente</button>
+    </form>
+  </details>
+</div></div>
+
+<script type="module" src="../assets/js/admin.js"></script>
+</body></html>

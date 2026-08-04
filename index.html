@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Toca Aí • Ailton Souza</title>
+  <meta name="description" content="Escolha uma música e envie seu pedido para o show de Ailton Souza.">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="wrap topin">
+      <div class="brand">
+        <img src="./assets/img/logo-ailton-souza.png" alt="Ailton Souza">
+        <div><small>TOCA AÍ</small><h1>Ailton Souza</h1></div>
+      </div>
+      <div class="livebar"><span id="liveDot" class="live-dot"></span><strong id="liveText">Pedidos fechados</strong></div>
+    </div>
+    <div class="wrap hero">
+      <h2 id="eventName">Repertório da noite</h2>
+      <p id="introText">Escolha uma playlist, encontre sua música favorita e envie seu pedido.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="section" id="playlistView">
+      <div class="section-head"><h2>Escolha uma playlist</h2></div>
+      <label class="search">⌕<input id="playlistSearch" placeholder="Buscar playlists..."></label>
+      <div class="grid" id="playlistList" style="margin-top:16px"></div>
+    </section>
+
+    <section class="section" id="songView" hidden>
+      <button class="btn btn-ghost" id="backBtn">← Voltar</button>
+      <div class="section-head" style="margin-top:18px">
+        <div><small class="muted">REPERTÓRIO</small><h2 id="songTitle"></h2></div>
+      </div>
+      <label class="search">⌕<input id="songSearch" placeholder="Buscar música ou artista"></label>
+      <div class="grid" id="songList" style="margin-top:16px"></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="requestModal"><div class="sheet"><div class="grab"></div>
+  <h2>Enviar pedido</h2>
+  <div class="notice"><strong id="chosenSong"></strong><br><span id="chosenArtist"></span></div>
+  <form class="form" id="requestForm">
+    <div class="form-grid">
+      <label>Seu nome<input id="customerName" required maxlength="60"></label>
+      <label>Mesa (opcional)<input id="customerTable" maxlength="20"></label>
+    </div>
+    <label>Dedicatória ou mensagem (opcional)<textarea id="customerMessage" rows="3" maxlength="240"></textarea></label>
+    <button class="btn btn-primary" style="width:100%">Continuar</button>
+  </form>
+</div></div>
+
+<div class="modal" id="supportModal"><div class="sheet"><div class="grab"></div>
+  <h2>Apoiar o artista</h2>
+  <div class="notice"><strong>Apoie o artista via Pix</strong><p>Seu pedido já foi registrado. A contribuição é opcional.</p></div>
+  <div class="values">
+    <button class="value" data-value="10">R$ 10</button>
+    <button class="value" data-value="20">R$ 20</button>
+    <button class="value" data-value="30">R$ 30</button>
+    <button class="value" data-value="50">R$ 50</button>
+    <button class="value" data-value="custom">Outro</button>
+  </div>
+  <button class="btn btn-primary" id="generatePix" style="width:100%" disabled>Gerar Pix</button>
+  <button class="btn btn-ghost" id="skipSupport" style="width:100%;margin-top:10px">Não apoiar agora</button>
+</div></div>
+
+<div class="modal" id="pixModal"><div class="sheet"><div class="grab"></div>
+  <h2>Pagamento Pix</h2>
+  <div class="card"><strong id="pixAmount"></strong><p class="muted">Copie o código abaixo e cole no aplicativo do seu banco.</p></div>
+  <div class="pixcode" style="margin-top:14px">
+    <textarea id="pixPayload" readonly></textarea>
+    <button class="btn btn-primary" id="copyPix">Copiar</button>
+  </div>
+  <p class="muted">Esta versão gera um Pix copia e cola estático. A confirmação automática de pagamento exige um provedor de pagamento com servidor.</p>
+  <button class="btn btn-ghost" id="finishPix" style="width:100%">Concluir</button>
+</div></div>
+
+<div class="modal" id="doneModal"><div class="sheet"><div class="grab"></div>
+  <div class="notice"><h2>Pedido enviado!</h2><p id="doneText">Seu pedido foi recebido pelo Ailton Souza.</p></div>
+  <button class="btn btn-primary" id="doneBtn" style="width:100%">Continuar no repertório</button>
+</div></div>
+
+<script type="module" src="./assets/js/public.js"></script>
+</body></html>

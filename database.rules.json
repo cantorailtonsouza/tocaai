@@ -1,0 +1,19 @@
+{
+  "rules": {
+    "settings": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "playlists": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "requests": {
+      ".read": "auth != null",
+      "$requestId": {
+        ".write": "!data.exists() || auth != null",
+        ".validate": "newData.hasChildren(['song','artist','customerName','createdAt'])"
+      }
+    }
+  }
+}
