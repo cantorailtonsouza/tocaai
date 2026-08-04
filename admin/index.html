@@ -2,117 +2,1157 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Painel • Toca Aí</title>
-  <link rel="stylesheet" href="../assets/css/styles.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#080604">
+
+  <title>Painel do Cantor • Toca Aí</title>
+
+  <link
+    rel="stylesheet"
+    href="../assets/css/styles.css"
+  >
+
+  <style>
+    /* =====================================================
+       LOGIN PREMIUM — TOCA AÍ
+       Este estilo garante que o login fique correto mesmo
+       que existam regras antigas no styles.css
+    ===================================================== */
+
+    :root {
+      --login-black: #070604;
+      --login-black-soft: #1b1206;
+      --login-gold: #d6a52f;
+      --login-gold-light: #f1d178;
+      --login-white: #ffffff;
+      --login-text: #17120a;
+      --login-muted: #806f58;
+      --login-border: #e6ddcf;
+      --login-danger: #c33a30;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    #loginView {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 18px;
+
+      background:
+        radial-gradient(
+          circle at 75% 20%,
+          rgba(215, 166, 50, 0.13),
+          transparent 35%
+        ),
+        radial-gradient(
+          circle at 20% 80%,
+          rgba(215, 166, 50, 0.06),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          var(--login-black) 0%,
+          var(--login-black-soft) 100%
+        );
+    }
+
+    #loginForm.login-card {
+      width: 100%;
+      max-width: 470px;
+      display: block;
+      position: relative;
+      overflow: hidden;
+
+      padding: 44px 38px 36px;
+
+      background: rgba(255, 255, 255, 0.985);
+      border: 1px solid rgba(215, 166, 50, 0.26);
+      border-radius: 28px;
+
+      box-shadow:
+        0 36px 90px rgba(0, 0, 0, 0.42),
+        0 1px 0 rgba(255, 255, 255, 0.8) inset;
+    }
+
+    #loginForm.login-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 128px;
+      height: 4px;
+      transform: translateX(-50%);
+
+      background: linear-gradient(
+        90deg,
+        var(--login-gold),
+        var(--login-gold-light),
+        var(--login-gold)
+      );
+
+      border-radius: 0 0 12px 12px;
+    }
+
+    .login-logo {
+      width: 84px;
+      height: 84px;
+      display: block;
+      margin: 0 auto 18px;
+      object-fit: contain;
+    }
+
+    .login-eyebrow {
+      display: block;
+      margin-bottom: 10px;
+
+      color: #8b7350;
+      font-size: 0.76rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: 0.14em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .login-title {
+      margin: 0 0 30px;
+
+      color: var(--login-text);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 5vw, 2.55rem);
+      line-height: 1.08;
+      text-align: center;
+    }
+
+    .login-field {
+      display: block;
+      width: 100%;
+      margin-bottom: 18px;
+
+      color: var(--login-text);
+      font-size: 0.9rem;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .login-input-wrap {
+      position: relative;
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .login-field input {
+      display: block;
+      width: 100%;
+      min-height: 56px;
+      padding: 0 16px;
+
+      color: var(--login-text);
+      background: #fffdf9;
+      border: 1px solid var(--login-border);
+      border-radius: 14px;
+      outline: none;
+
+      font-family: inherit;
+      font-size: 1rem;
+
+      transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .login-field input:hover {
+      border-color: #cdbd9e;
+    }
+
+    .login-field input:focus {
+      background: var(--login-white);
+      border-color: var(--login-gold);
+
+      box-shadow:
+        0 0 0 4px rgba(215, 166, 50, 0.15),
+        0 10px 28px rgba(96, 63, 7, 0.08);
+    }
+
+    .password-field input {
+      padding-right: 54px;
+    }
+
+    .password-toggle {
+      width: 44px;
+      height: 44px;
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      transform: translateY(-50%);
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      color: #6f6250;
+      background: transparent;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+
+      font-size: 1.1rem;
+    }
+
+    .password-toggle:hover {
+      color: var(--login-text);
+      background: rgba(215, 166, 50, 0.1);
+    }
+
+    #loginButton {
+      width: 100%;
+      min-height: 56px;
+      margin-top: 4px;
+      padding: 0 24px;
+
+      color: #171107;
+      background: linear-gradient(
+        135deg,
+        var(--login-gold-light),
+        var(--login-gold)
+      );
+
+      border: 0;
+      border-radius: 15px;
+      cursor: pointer;
+
+      box-shadow:
+        0 14px 30px rgba(166, 112, 10, 0.24);
+
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 900;
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+    }
+
+    #loginButton:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+
+      box-shadow:
+        0 18px 38px rgba(166, 112, 10, 0.32);
+    }
+
+    #loginButton:active {
+      transform: translateY(0);
+    }
+
+    #loginButton:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
+    }
+
+    #loginError {
+      min-height: 22px;
+      margin: 16px 0 0;
+
+      color: var(--login-danger);
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .login-help {
+      margin: 18px 0 0;
+
+      color: var(--login-muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (max-width: 560px) {
+      #loginView {
+        padding: 18px 14px;
+      }
+
+      #loginForm.login-card {
+        padding: 38px 22px 28px;
+        border-radius: 22px;
+      }
+
+      .login-logo {
+        width: 72px;
+        height: 72px;
+      }
+
+      .login-title {
+        margin-bottom: 26px;
+        font-size: 2rem;
+      }
+
+      .login-field input,
+      #loginButton {
+        min-height: 54px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<section class="login" id="loginView">
-  <form class="login-card" id="loginForm">
-    <img src="../assets/img/logo-ailton-souza.png" alt="Ailton Souza">
-    <small class="muted">PAINEL DO CANTOR</small>
-    <h1>Toca Aí • Ailton Souza</h1>
-    <label>E-mail<input id="loginEmail" type="email" required autocomplete="username"></label>
-    <label>Senha<input id="loginPassword" type="password" required autocomplete="current-password"></label>
-    <button class="btn btn-primary" id="loginButton" style="width:100%">Entrar</button>
-    <p id="loginError" class="error"></p>
-  </form>
-</section>
 
-<div class="app" id="panelView" hidden>
-  <header class="top"><div class="wrap topin">
-    <div class="brand"><img src="../assets/img/logo-ailton-souza.png" alt=""><div><small>PAINEL DO CANTOR</small><h1>Toca Aí</h1></div></div>
-    <div class="toolbar"><button class="btn btn-ghost" id="openPublic">Abrir página pública</button><button class="btn btn-danger" id="logoutBtn">Sair</button></div>
-  </div></header>
+  <!-- ===================================================
+       LOGIN
+  ==================================================== -->
 
-  <main class="wrap section">
-    <section id="playlistsTab">
-      <div class="section-head"><div><h2>Minhas playlists</h2><span class="muted" id="playlistCount"></span></div><button class="btn btn-primary" id="newPlaylistBtn">+ Nova playlist</button></div>
-      <label class="search">⌕<input id="adminPlaylistSearch" placeholder="Buscar playlists..."></label>
-      <div class="grid" id="adminPlaylists" style="margin-top:16px"></div>
-    </section>
+  <section
+    class="login"
+    id="loginView"
+    aria-labelledby="loginTitle"
+  >
+    <form
+      class="login-card"
+      id="loginForm"
+      autocomplete="on"
+    >
+      <img
+        class="login-logo"
+        src="../assets/img/logo-ailton-souza.png"
+        alt="Logo Ailton Souza"
+      >
 
-    <section id="requestsTab" hidden>
-      <div class="section-head"><h2>Últimos pedidos</h2><span class="tag green" id="liveBadge">● AO VIVO</span></div>
-      <div class="toolbar" style="margin-bottom:14px">
-        <button class="pill active" data-hours="1">1h</button><button class="pill" data-hours="2">2h</button><button class="pill" data-hours="5">5h</button><button class="pill" data-hours="12">12h</button><button class="pill" data-hours="24">24h</button>
-      </div>
-      <div class="stats">
-        <div class="stat"><span class="muted">Pedidos</span><strong id="statRequests">0</strong></div>
-        <div class="stat"><span class="muted">Na fila</span><strong id="statQueue">0</strong></div>
-        <div class="stat"><span class="muted">Apoios</span><strong id="statTips">R$ 0</strong></div>
-        <div class="stat"><span class="muted">Mais pedida</span><strong id="statTop">—</strong></div>
-      </div>
-      <div class="grid" id="requestsList" style="margin-top:18px"></div>
-    </section>
+      <small class="login-eyebrow">
+        Painel do cantor
+      </small>
 
-    <section id="shareTab" hidden>
-      <div class="card"><h2>Compartilhar repertório</h2><p class="muted">Compartilhe este link com seus clientes.</p>
-        <div class="sharebox"><input id="shareLink" value="https://ailtonsouza.com.br/tocaai" readonly><button class="btn btn-primary" id="copyLink">Copiar link</button><button class="btn btn-dark" id="shareBtn">Compartilhar</button></div>
-      </div>
-    </section>
+      <h1
+        class="login-title"
+        id="loginTitle"
+      >
+        Toca Aí • Ailton Souza
+      </h1>
 
-    <section id="configTab" hidden>
-      <div class="card"><div class="section-head"><h2>Configurações</h2><button class="btn btn-primary" id="saveSettings">Salvar</button></div>
-        <div class="form">
-          <div class="form-grid"><label>Nome do evento<input id="cfgEvent"></label><label>Texto inicial<input id="cfgIntro"></label></div>
-          <div class="form-grid"><label>Chave Pix<input id="cfgPixKey"></label><label>Nome do recebedor<input id="cfgPixName"></label></div>
-          <div class="form-grid"><label>Cidade Pix<input id="cfgPixCity"></label><label>Link público<input id="cfgShareLink" value="https://ailtonsouza.com.br/tocaai"></label></div>
-          <label><input id="cfgPixEnabled" type="checkbox"> Ativar apoio opcional via Pix</label>
-          <label><input id="cfgShowLive" type="checkbox"> Modo Show — aceitar pedidos</label>
-          <div class="spotify-note"><strong>Busca musical:</strong> integrada à YouTube Data API v3 por meio de um Cloudflare Worker protegido. O painel salva somente nome, artista, miniatura e identificador da fonte.</div>
-        </div>
-      </div>
-    </section>
-  </main>
+      <label
+        class="login-field"
+        for="loginEmail"
+      >
+        E-mail
 
-  <nav class="bottom-nav">
-    <button class="active" data-tab="playlistsTab"><span>☷</span>Playlists</button>
-    <button data-tab="requestsTab"><span>♫</span>Pedidos</button>
-    <button data-tab="shareTab"><span>↗</span>Compartilhar</button>
-    <button data-tab="configTab"><span>⚙</span>Config</button>
-  </nav>
-</div>
+        <span class="login-input-wrap">
+          <input
+            id="loginEmail"
+            name="email"
+            type="email"
+            placeholder="Digite seu e-mail"
+            required
+            autocomplete="username"
+            inputmode="email"
+          >
+        </span>
+      </label>
 
-<div class="modal" id="playlistModal"><div class="sheet"><div class="grab"></div>
-  <h2 id="playlistModalTitle">Nova playlist</h2>
-  <form class="form" id="playlistForm">
-    <input id="playlistId" type="hidden">
-    <div class="form-grid"><label>Nome<input id="playlistName" required maxlength="80"></label><label>Ícone<input id="playlistIcon" value="🎵" maxlength="4"></label></div>
-    <label>URL da capa (opcional)<input id="playlistCoverUrl" type="url"></label>
-    <label><input id="playlistActive" type="checkbox" checked> Playlist ativa</label>
-    <button class="btn btn-primary">Salvar playlist</button>
-    <button class="btn btn-ghost" type="button" id="closePlaylistModal">Cancelar</button>
-  </form>
-</div></div>
+      <label
+        class="login-field password-field"
+        for="loginPassword"
+      >
+        Senha
 
-<div class="modal" id="songsModal"><div class="sheet"><div class="grab"></div>
-  <div class="section-head"><div><small class="muted">PLAYLIST</small><h2 id="songsModalTitle"></h2><p class="muted" id="songsCount"></p></div><button class="btn btn-ghost" id="closeSongsModal">Fechar</button></div>
-  <button class="btn btn-primary" id="newSongBtn">+ Adicionar música</button>
-  <div class="grid" id="adminSongs" style="margin-top:14px"></div>
-</div></div>
+        <span class="login-input-wrap">
+          <input
+            id="loginPassword"
+            name="password"
+            type="password"
+            placeholder="Digite sua senha"
+            required
+            autocomplete="current-password"
+          >
 
-<div class="modal" id="songModal"><div class="sheet"><div class="grab"></div>
-  <div class="section-head">
-    <div><small class="muted">ADICIONAR À PLAYLIST</small><h2>Pesquisar música</h2></div>
-    <button class="btn btn-ghost" type="button" id="closeSongModal">Fechar</button>
-  </div>
-  <form class="search music-search" id="youtubeSearchForm">
-    ⌕<input id="youtubeSearchInput" placeholder="Digite música ou artista" minlength="2" required autocomplete="off">
-    <button class="btn btn-primary" id="youtubeSearchBtn">Pesquisar</button>
-  </form>
-  <p class="muted" id="youtubeSearchStatus">Pesquise pelo nome da música ou do artista.</p>
-  <div class="grid search-results" id="youtubeResults"></div>
-  <details class="manual-add">
-    <summary>Adicionar manualmente</summary>
-    <form class="form" id="songForm">
-      <label>Nome da música<input id="songName" required maxlength="120"></label>
-      <label>Artista<input id="songArtist" required maxlength="120"></label>
-      <label><input id="songFavorite" type="checkbox"> Favorita do cantor</label>
-      <button class="btn btn-primary">Adicionar manualmente</button>
+          <button
+            class="password-toggle"
+            id="togglePassword"
+            type="button"
+            aria-label="Mostrar senha"
+            title="Mostrar senha"
+          >
+            ◉
+          </button>
+        </span>
+      </label>
+
+      <button
+        class="btn btn-primary"
+        id="loginButton"
+        type="submit"
+      >
+        Entrar
+      </button>
+
+      <p
+        class="error"
+        id="loginError"
+        role="alert"
+        aria-live="polite"
+      ></p>
+
+      <p class="login-help">
+        Acesso restrito ao painel administrativo.
+      </p>
     </form>
-  </details>
-</div></div>
+  </section>
 
-<script type="module" src="../assets/js/admin.js"></script>
-</body></html>
+
+  <!-- ===================================================
+       PAINEL PRINCIPAL
+  ==================================================== -->
+
+  <div
+    class="app"
+    id="panelView"
+    hidden
+  >
+
+    <header class="top">
+      <div class="wrap topin">
+
+        <div class="brand">
+          <img
+            src="../assets/img/logo-ailton-souza.png"
+            alt="Logo Ailton Souza"
+          >
+
+          <div>
+            <small>
+              Painel do cantor
+            </small>
+
+            <h1>
+              Toca Aí
+            </h1>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button
+            class="btn btn-ghost"
+            id="openPublic"
+            type="button"
+          >
+            Abrir página pública
+          </button>
+
+          <button
+            class="btn btn-danger"
+            id="logoutBtn"
+            type="button"
+          >
+            Sair
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+
+    <main class="wrap section">
+
+      <!-- PLAYLISTS -->
+
+      <section id="playlistsTab">
+
+        <div class="section-head">
+          <div>
+            <h2>
+              Minhas playlists
+            </h2>
+
+            <span
+              class="muted"
+              id="playlistCount"
+            ></span>
+          </div>
+
+          <button
+            class="btn btn-primary"
+            id="newPlaylistBtn"
+            type="button"
+          >
+            + Nova playlist
+          </button>
+        </div>
+
+        <label class="search">
+          <span aria-hidden="true">⌕</span>
+
+          <input
+            id="adminPlaylistSearch"
+            type="search"
+            placeholder="Buscar playlists..."
+            autocomplete="off"
+          >
+        </label>
+
+        <div
+          class="grid"
+          id="adminPlaylists"
+          style="margin-top:16px"
+        ></div>
+
+      </section>
+
+
+      <!-- PEDIDOS -->
+
+      <section
+        id="requestsTab"
+        hidden
+      >
+
+        <div class="section-head">
+          <h2>
+            Últimos pedidos
+          </h2>
+
+          <span
+            class="tag green"
+            id="liveBadge"
+          >
+            ● AO VIVO
+          </span>
+        </div>
+
+        <div
+          class="toolbar"
+          style="margin-bottom:14px"
+        >
+          <button
+            class="pill active"
+            type="button"
+            data-hours="1"
+          >
+            1h
+          </button>
+
+          <button
+            class="pill"
+            type="button"
+            data-hours="2"
+          >
+            2h
+          </button>
+
+          <button
+            class="pill"
+            type="button"
+            data-hours="5"
+          >
+            5h
+          </button>
+
+          <button
+            class="pill"
+            type="button"
+            data-hours="12"
+          >
+            12h
+          </button>
+
+          <button
+            class="pill"
+            type="button"
+            data-hours="24"
+          >
+            24h
+          </button>
+        </div>
+
+        <div class="stats">
+
+          <div class="stat">
+            <span class="muted">
+              Pedidos
+            </span>
+
+            <strong id="statRequests">
+              0
+            </strong>
+          </div>
+
+          <div class="stat">
+            <span class="muted">
+              Na fila
+            </span>
+
+            <strong id="statQueue">
+              0
+            </strong>
+          </div>
+
+          <div class="stat">
+            <span class="muted">
+              Apoios
+            </span>
+
+            <strong id="statTips">
+              R$ 0
+            </strong>
+          </div>
+
+          <div class="stat">
+            <span class="muted">
+              Mais pedida
+            </span>
+
+            <strong id="statTop">
+              —
+            </strong>
+          </div>
+
+        </div>
+
+        <div
+          class="grid"
+          id="requestsList"
+          style="margin-top:18px"
+        ></div>
+
+      </section>
+
+
+      <!-- COMPARTILHAR -->
+
+      <section
+        id="shareTab"
+        hidden
+      >
+        <div class="card">
+
+          <h2>
+            Compartilhar repertório
+          </h2>
+
+          <p class="muted">
+            Compartilhe este link com seus clientes.
+          </p>
+
+          <div class="sharebox">
+
+            <input
+              id="shareLink"
+              type="url"
+              value="https://ailtonsouza.com.br/tocaai"
+              readonly
+            >
+
+            <button
+              class="btn btn-primary"
+              id="copyLink"
+              type="button"
+            >
+              Copiar link
+            </button>
+
+            <button
+              class="btn btn-dark"
+              id="shareBtn"
+              type="button"
+            >
+              Compartilhar
+            </button>
+
+          </div>
+        </div>
+      </section>
+
+
+      <!-- CONFIGURAÇÕES -->
+
+      <section
+        id="configTab"
+        hidden
+      >
+        <div class="card">
+
+          <div class="section-head">
+            <h2>
+              Configurações
+            </h2>
+
+            <button
+              class="btn btn-primary"
+              id="saveSettings"
+              type="button"
+            >
+              Salvar
+            </button>
+          </div>
+
+          <div class="form">
+
+            <div class="form-grid">
+              <label>
+                Nome do evento
+
+                <input
+                  id="cfgEvent"
+                  type="text"
+                >
+              </label>
+
+              <label>
+                Texto inicial
+
+                <input
+                  id="cfgIntro"
+                  type="text"
+                >
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                Chave Pix
+
+                <input
+                  id="cfgPixKey"
+                  type="text"
+                >
+              </label>
+
+              <label>
+                Nome do recebedor
+
+                <input
+                  id="cfgPixName"
+                  type="text"
+                >
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                Cidade Pix
+
+                <input
+                  id="cfgPixCity"
+                  type="text"
+                >
+              </label>
+
+              <label>
+                Link público
+
+                <input
+                  id="cfgShareLink"
+                  type="url"
+                  value="https://ailtonsouza.com.br/tocaai"
+                >
+              </label>
+            </div>
+
+            <label>
+              <input
+                id="cfgPixEnabled"
+                type="checkbox"
+              >
+
+              Ativar apoio opcional via Pix
+            </label>
+
+            <label>
+              <input
+                id="cfgShowLive"
+                type="checkbox"
+              >
+
+              Modo Show — aceitar pedidos
+            </label>
+
+            <div class="spotify-note">
+              <strong>
+                Busca musical:
+              </strong>
+
+              integrada à YouTube Data API v3 por meio de um
+              Cloudflare Worker protegido. O painel salva somente
+              nome, artista, miniatura e identificador da fonte.
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+
+    <!-- MENU INFERIOR -->
+
+    <nav
+      class="bottom-nav"
+      aria-label="Menu do painel"
+    >
+
+      <button
+        class="active"
+        type="button"
+        data-tab="playlistsTab"
+      >
+        <span aria-hidden="true">☷</span>
+        Playlists
+      </button>
+
+      <button
+        type="button"
+        data-tab="requestsTab"
+      >
+        <span aria-hidden="true">♫</span>
+        Pedidos
+      </button>
+
+      <button
+        type="button"
+        data-tab="shareTab"
+      >
+        <span aria-hidden="true">↗</span>
+        Compartilhar
+      </button>
+
+      <button
+        type="button"
+        data-tab="configTab"
+      >
+        <span aria-hidden="true">⚙</span>
+        Config
+      </button>
+
+    </nav>
+
+  </div>
+
+
+  <!-- ===================================================
+       MODAL — PLAYLIST
+  ==================================================== -->
+
+  <div
+    class="modal"
+    id="playlistModal"
+  >
+    <div class="sheet">
+
+      <div class="grab"></div>
+
+      <h2 id="playlistModalTitle">
+        Nova playlist
+      </h2>
+
+      <form
+        class="form"
+        id="playlistForm"
+      >
+        <input
+          id="playlistId"
+          type="hidden"
+        >
+
+        <div class="form-grid">
+          <label>
+            Nome
+
+            <input
+              id="playlistName"
+              type="text"
+              required
+              maxlength="80"
+            >
+          </label>
+
+          <label>
+            Ícone
+
+            <input
+              id="playlistIcon"
+              type="text"
+              value="🎵"
+              maxlength="4"
+            >
+          </label>
+        </div>
+
+        <label>
+          URL da capa (opcional)
+
+          <input
+            id="playlistCoverUrl"
+            type="url"
+          >
+        </label>
+
+        <label>
+          <input
+            id="playlistActive"
+            type="checkbox"
+            checked
+          >
+
+          Playlist ativa
+        </label>
+
+        <button
+          class="btn btn-primary"
+          type="submit"
+        >
+          Salvar playlist
+        </button>
+
+        <button
+          class="btn btn-ghost"
+          id="closePlaylistModal"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ===================================================
+       MODAL — MÚSICAS DA PLAYLIST
+  ==================================================== -->
+
+  <div
+    class="modal"
+    id="songsModal"
+  >
+    <div class="sheet">
+
+      <div class="grab"></div>
+
+      <div class="section-head">
+
+        <div>
+          <small class="muted">
+            PLAYLIST
+          </small>
+
+          <h2 id="songsModalTitle"></h2>
+
+          <p
+            class="muted"
+            id="songsCount"
+          ></p>
+        </div>
+
+        <button
+          class="btn btn-ghost"
+          id="closeSongsModal"
+          type="button"
+        >
+          Fechar
+        </button>
+
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="newSongBtn"
+        type="button"
+      >
+        + Adicionar música
+      </button>
+
+      <div
+        class="grid"
+        id="adminSongs"
+        style="margin-top:14px"
+      ></div>
+
+    </div>
+  </div>
+
+
+  <!-- ===================================================
+       MODAL — PESQUISAR MÚSICA
+  ==================================================== -->
+
+  <div
+    class="modal"
+    id="songModal"
+  >
+    <div class="sheet">
+
+      <div class="grab"></div>
+
+      <div class="section-head">
+
+        <div>
+          <small class="muted">
+            ADICIONAR À PLAYLIST
+          </small>
+
+          <h2>
+            Pesquisar música
+          </h2>
+        </div>
+
+        <button
+          class="btn btn-ghost"
+          id="closeSongModal"
+          type="button"
+        >
+          Fechar
+        </button>
+
+      </div>
+
+      <form
+        class="search music-search"
+        id="youtubeSearchForm"
+      >
+        <span aria-hidden="true">⌕</span>
+
+        <input
+          id="youtubeSearchInput"
+          type="search"
+          placeholder="Digite música ou artista"
+          minlength="2"
+          required
+          autocomplete="off"
+        >
+
+        <button
+          class="btn btn-primary"
+          id="youtubeSearchBtn"
+          type="submit"
+        >
+          Pesquisar
+        </button>
+      </form>
+
+      <p
+        class="muted"
+        id="youtubeSearchStatus"
+      >
+        Pesquise pelo nome da música ou do artista.
+      </p>
+
+      <div
+        class="grid search-results"
+        id="youtubeResults"
+      ></div>
+
+      <details class="manual-add">
+        <summary>
+          Adicionar manualmente
+        </summary>
+
+        <form
+          class="form"
+          id="songForm"
+        >
+          <label>
+            Nome da música
+
+            <input
+              id="songName"
+              type="text"
+              required
+              maxlength="120"
+            >
+          </label>
+
+          <label>
+            Artista
+
+            <input
+              id="songArtist"
+              type="text"
+              required
+              maxlength="120"
+            >
+          </label>
+
+          <label>
+            <input
+              id="songFavorite"
+              type="checkbox"
+            >
+
+            Favorita do cantor
+          </label>
+
+          <button
+            class="btn btn-primary"
+            type="submit"
+          >
+            Adicionar manualmente
+          </button>
+
+        </form>
+      </details>
+
+    </div>
+  </div>
+
+
+  <script>
+    const togglePassword =
+      document.querySelector("#togglePassword");
+
+    const passwordInput =
+      document.querySelector("#loginPassword");
+
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener("click", () => {
+        const showing =
+          passwordInput.type === "text";
+
+        passwordInput.type =
+          showing ? "password" : "text";
+
+        togglePassword.textContent =
+          showing ? "◉" : "◎";
+
+        togglePassword.setAttribute(
+          "aria-label",
+          showing ? "Mostrar senha" : "Ocultar senha"
+        );
+
+        togglePassword.setAttribute(
+          "title",
+          showing ? "Mostrar senha" : "Ocultar senha"
+        );
+      });
+    }
+  </script>
+
+  <script
+    type="module"
+    src="../assets/js/admin.js"
+  ></script>
+
+</body>
+</html>
