@@ -45,7 +45,7 @@ function esc(value = "") {
 
 /**
  * Carrega somente os dados públicos necessários.
- * Não lê mais a raiz "/" do Realtime Database.
+ * Não lê a raiz inteira do Realtime Database.
  */
 async function loadInitial() {
   const [settingsSnapshot, playlistsSnapshot] = await Promise.all([
@@ -63,7 +63,6 @@ async function loadInitial() {
   applySettings();
   renderPlaylists();
 
-  // Atualização em tempo real das configurações.
   onValue(
     ref(db, "settings"),
     (snapshot) => {
@@ -75,17 +74,18 @@ async function loadInitial() {
       applySettings();
     },
     (error) => {
-      console.error("Erro ao acompanhar configurações:", error);
+      console.error(
+        "Erro ao acompanhar configurações:",
+        error
+      );
     }
   );
 
-  // Atualização em tempo real das playlists.
   onValue(
     ref(db, "playlists"),
     (snapshot) => {
       state.playlists = snapshot.val() || {};
 
-      // Atualiza também a playlist aberta.
       if (state.currentPlaylist?.id) {
         const updatedPlaylist =
           state.playlists[state.currentPlaylist.id];
@@ -105,7 +105,10 @@ async function loadInitial() {
       renderPlaylists();
     },
     (error) => {
-      console.error("Erro ao acompanhar playlists:", error);
+      console.error(
+        "Erro ao acompanhar playlists:",
+        error
+      );
     }
   );
 }
@@ -171,14 +174,43 @@ function renderPlaylists() {
   playlistList.innerHTML =
     playlists
       .map(([id, playlist]) => {
-        const songsCount = Object.keys(
+        const songs = Object.values(
           playlist.songs || {}
-        ).length;
+        );
 
-        const cover = playlist.coverUrl
+        const songsCount = songs.length;
+
+        /**
+         * Procura a música mais recentemente adicionada
+         * que possua miniatura.
+         */
+        const latestSong = songs
+          .filter(
+            (song) =>
+              song &&
+              song.thumbnail
+          )
+          .sort(
+            (songA, songB) =>
+              Number(songB.createdAt || 0) -
+              Number(songA.createdAt || 0)
+          )[0];
+
+        /**
+         * Ordem de prioridade da capa:
+         * 1. Capa manual da playlist
+         * 2. Miniatura da última música adicionada
+         * 3. Ícone da playlist
+         */
+        const coverImage =
+          playlist.coverUrl ||
+          latestSong?.thumbnail ||
+          "";
+
+        const cover = coverImage
           ? `
             <img
-              src="${esc(playlist.coverUrl)}"
+              src="${esc(coverImage)}"
               alt="Capa da playlist ${esc(
                 playlist.name || ""
               )}"
@@ -202,9 +234,11 @@ function renderPlaylists() {
             </div>
 
             <div class="meta">
-              <h3>${esc(
-                playlist.name || "Playlist"
-              )}</h3>
+              <h3>
+                ${esc(
+                  playlist.name || "Playlist"
+                )}
+              </h3>
 
               <span class="muted">
                 ${songsCount}/100 músicas
@@ -239,7 +273,10 @@ function renderPlaylists() {
         openPlaylist(element.dataset.id);
       };
 
-      element.addEventListener("click", open);
+      element.addEventListener(
+        "click",
+        open
+      );
 
       element.addEventListener(
         "keydown",
@@ -259,10 +296,14 @@ function renderPlaylists() {
 function openPlaylist(id) {
   const playlist = state.playlists[id];
 
-  if (!playlist || playlist.active !== true) {
+  if (
+    !playlist ||
+    playlist.active !== true
+  ) {
     alert(
       "Essa playlist não está disponível neste momento."
     );
+
     return;
   }
 
@@ -288,7 +329,8 @@ function openPlaylist(id) {
 
   if (songTitle) {
     songTitle.textContent =
-      state.currentPlaylist.name || "Playlist";
+      state.currentPlaylist.name ||
+      "Playlist";
   }
 
   if (songSearch) {
@@ -394,14 +436,14 @@ function renderSongs() {
                 <h4>
                   ${esc(
                     song.title ||
-                      "Música sem título"
+                    "Música sem título"
                   )}
                 </h4>
 
                 <p class="muted">
                   ${esc(
                     song.artist ||
-                      "Artista não informado"
+                    "Artista não informado"
                   )}
                 </p>
 
@@ -433,9 +475,14 @@ function renderSongs() {
   document
     .querySelectorAll("[data-song]")
     .forEach((button) => {
-      button.addEventListener("click", () => {
-        openRequest(button.dataset.song);
-      });
+      button.addEventListener(
+        "click",
+        () => {
+          openRequest(
+            button.dataset.song
+          );
+        }
+      );
     });
 }
 
@@ -444,16 +491,21 @@ function openRequest(songId) {
     alert(
       "Os pedidos estão fechados neste momento."
     );
+
     return;
   }
 
   const song =
     state.currentPlaylist?.songs?.[songId];
 
-  if (!song || song.active === false) {
+  if (
+    !song ||
+    song.active === false
+  ) {
     alert(
       "Essa música não está disponível."
     );
+
     return;
   }
 
@@ -525,15 +577,19 @@ if (requestForm) {
         alert(
           "Escolha uma música antes de enviar o pedido."
         );
+
         return;
       }
 
       const customerName =
-        $("#customerName")?.value.trim() || "";
+        $("#customerName")?.value.trim() ||
+        "";
 
       if (!customerName) {
         alert("Informe seu nome.");
+
         $("#customerName")?.focus();
+
         return;
       }
 
@@ -558,31 +614,53 @@ if (requestForm) {
 
         const requestData = {
           id: requestReference.key,
+
           playlistId:
             state.currentPlaylist.id,
+
           playlistName:
-            state.currentPlaylist.name || "",
-          songId: state.currentSong.id,
+            state.currentPlaylist.name ||
+            "",
+
+          songId:
+            state.currentSong.id,
+
           song:
-            state.currentSong.title || "",
+            state.currentSong.title ||
+            "",
+
           artist:
-            state.currentSong.artist || "",
+            state.currentSong.artist ||
+            "",
+
           thumbnail:
-            state.currentSong.thumbnail || "",
+            state.currentSong.thumbnail ||
+            "",
+
           source:
-            state.currentSong.source || "",
+            state.currentSong.source ||
+            "",
+
           sourceId:
-            state.currentSong.sourceId || "",
+            state.currentSong.sourceId ||
+            "",
+
           customerName,
+
           table:
             $("#customerTable")?.value.trim() ||
             "",
+
           message:
             $("#customerMessage")?.value.trim() ||
             "",
+
           status: "new",
+
           tipValue: 0,
+
           priority: false,
+
           createdAt: Date.now()
         };
 
@@ -632,6 +710,7 @@ if (requestForm) {
       } finally {
         if (submitButton) {
           submitButton.disabled = false;
+
           submitButton.textContent =
             "Enviar pedido";
         }
@@ -643,48 +722,56 @@ if (requestForm) {
 document
   .querySelectorAll("[data-value]")
   .forEach((button) => {
-    button.addEventListener("click", () => {
-      document
-        .querySelectorAll(".value")
-        .forEach((item) => {
-          item.classList.remove("active");
-        });
+    button.addEventListener(
+      "click",
+      () => {
+        document
+          .querySelectorAll(".value")
+          .forEach((item) => {
+            item.classList.remove(
+              "active"
+            );
+          });
 
-      button.classList.add("active");
+        button.classList.add("active");
 
-      const rawValue =
-        button.dataset.value;
+        const rawValue =
+          button.dataset.value;
 
-      if (rawValue === "custom") {
-        const customValue = prompt(
-          "Digite o valor em reais:"
-        );
+        if (rawValue === "custom") {
+          const customValue = prompt(
+            "Digite o valor em reais:"
+          );
 
-        state.selectedValue = Number(
-          String(customValue || "")
-            .replace(/[^\d,.-]/g, "")
-            .replace(",", ".")
-        );
-      } else {
-        state.selectedValue =
-          Number(rawValue);
+          state.selectedValue = Number(
+            String(customValue || "")
+              .replace(/[^\d,.-]/g, "")
+              .replace(",", ".")
+          );
+        } else {
+          state.selectedValue =
+            Number(rawValue);
+        }
+
+        if (
+          !Number.isFinite(
+            state.selectedValue
+          ) ||
+          state.selectedValue <= 0
+        ) {
+          state.selectedValue = null;
+
+          button.classList.remove(
+            "active"
+          );
+        }
+
+        if (generatePixButton) {
+          generatePixButton.disabled =
+            !(state.selectedValue > 0);
+        }
       }
-
-      if (
-        !Number.isFinite(
-          state.selectedValue
-        ) ||
-        state.selectedValue <= 0
-      ) {
-        state.selectedValue = null;
-        button.classList.remove("active");
-      }
-
-      if (generatePixButton) {
-        generatePixButton.disabled =
-          !(state.selectedValue > 0);
-      }
-    });
+    );
   });
 
 if (generatePixButton) {
@@ -703,6 +790,7 @@ if (generatePixButton) {
       }
 
       generatePixButton.disabled = true;
+
       generatePixButton.textContent =
         "Gerando PIX...";
 
@@ -715,6 +803,7 @@ if (generatePixButton) {
             ),
             value
           ),
+
           set(
             ref(
               db,
@@ -773,6 +862,7 @@ if (generatePixButton) {
         );
       } finally {
         generatePixButton.disabled = false;
+
         generatePixButton.textContent =
           "Gerar PIX";
       }
@@ -784,7 +874,9 @@ if (copyPixButton) {
   copyPixButton.addEventListener(
     "click",
     async () => {
-      const pixField = $("#pixPayload");
+      const pixField =
+        $("#pixPayload");
+
       const pixPayload =
         pixField?.value || "";
 
