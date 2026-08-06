@@ -847,6 +847,15 @@ const pixName =
 const pixCity =
   state.settings.pixCity ||
   "Luziania";
+        const PIX_KEY_TYPES = {
+  cpf: "CPF",
+  email: "E-mail",
+  phone: "Telefone",
+  random: "Chave aleatória"
+};
+
+const pixKeyTypeLabel =
+  PIX_KEY_TYPES[pixKeyType] || "Chave Pix";
 
         const pixPayload = $("#pixPayload");
 
@@ -862,6 +871,19 @@ const pixCity =
         $("#pixModal")?.classList.add(
           "open"
         );
+        // Atualiza as informações da tela de apoio
+$("#supportPixKeyType").textContent =
+  pixKeyTypeLabel;
+
+$("#supportPixReceiver").textContent =
+  pixName;
+
+// Atualiza as informações da tela do Pix
+$("#pixKeyTypeLabel").textContent =
+  pixKeyTypeLabel;
+
+$("#pixReceiverName").textContent =
+  pixName;
       } catch (error) {
         console.error(
           "Erro ao gerar PIX:",
