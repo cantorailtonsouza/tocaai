@@ -179,14 +179,45 @@ function renderRequests(){
 }
 
 function fillSettings(){
-  $("#cfgEvent").value=state.settings.eventName||"Repertório da noite";$("#cfgIntro").value=state.settings.intro||"Escolha uma playlist, encontre sua música favorita e envie seu pedido.";
-  $("#cfgPixKey").value=state.settings.pixKey||"";$("#cfgPixName").value=state.settings.pixName||"Ailton Souza";$("#cfgPixCity").value=state.settings.pixCity||"Luziania";
-  $("#cfgPixEnabled").checked=state.settings.pixEnabled!==false;$("#cfgShowLive").checked=!!state.settings.showLive;$("#cfgShareLink").value=state.settings.shareLink||"https://ailtonsouza.com.br/tocaai";
+  $("#cfgEvent").value=state.settings.eventName||"Repertório da noite";
+  $("#cfgIntro").value=state.settings.intro||"Escolha uma playlist, encontre sua música favorita e envie seu pedido.";
+
+  $("#cfgPixKeyType").value=state.settings.pixKeyType||"random";
+  $("#cfgPixKey").value=state.settings.pixKey||"";
+  $("#cfgPixName").value=state.settings.pixName||"Ailton Souza";
+  $("#cfgPixCity").value=state.settings.pixCity||"Luziania";
+
+  $("#cfgPixEnabled").checked=state.settings.pixEnabled!==false;
+  $("#cfgShowLive").checked=!!state.settings.showLive;
+  $("#cfgShareLink").value=state.settings.shareLink||"https://ailtonsouza.com.br/tocaai";
+
   $("#shareLink").value=state.settings.shareLink||"https://ailtonsouza.com.br/tocaai";
   $("#liveBadge").textContent=state.settings.showLive?"● AO VIVO":"● FECHADO";
 }
 $("#saveSettings").onclick=async()=>{
-  await set(ref(db,"settings"),{...state.settings,eventName:$("#cfgEvent").value.trim(),intro:$("#cfgIntro").value.trim(),pixKey:$("#cfgPixKey").value.trim(),pixName:$("#cfgPixName").value.trim(),pixCity:$("#cfgPixCity").value.trim(),pixEnabled:$("#cfgPixEnabled").checked,showLive:$("#cfgShowLive").checked,shareLink:$("#cfgShareLink").value.trim(),updatedAt:Date.now()});
+  const pixKeyType=$("#cfgPixKeyType").value;
+  const pixKey=$("#cfgPixKey").value.trim();
+
+  if($("#cfgPixEnabled").checked&&!pixKey){
+    alert("Digite uma chave Pix antes de salvar.");
+    $("#cfgPixKey").focus();
+    return;
+  }
+
+  await set(ref(db,"settings"),{
+    ...state.settings,
+    eventName:$("#cfgEvent").value.trim(),
+    intro:$("#cfgIntro").value.trim(),
+    pixKeyType,
+    pixKey,
+    pixName:$("#cfgPixName").value.trim(),
+    pixCity:$("#cfgPixCity").value.trim(),
+    pixEnabled:$("#cfgPixEnabled").checked,
+    showLive:$("#cfgShowLive").checked,
+    shareLink:$("#cfgShareLink").value.trim(),
+    updatedAt:Date.now()
+  });
+
   alert("Configurações salvas.");
 };
 $("#copyLink").onclick=async()=>{await navigator.clipboard.writeText($("#shareLink").value);$("#copyLink").textContent="Copiado!";};
