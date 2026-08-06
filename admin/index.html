@@ -293,6 +293,31 @@
       text-align: center;
     }
 
+    /* Campo de seleção das configurações Pix */
+    #cfgPixKeyType {
+      width: 100%;
+      min-height: 52px;
+      padding: 0 14px;
+      color: #17120a;
+      background: #fffdf9;
+      border: 1px solid #e6ddcf;
+      border-radius: 14px;
+      outline: none;
+      font: inherit;
+    }
+
+    #cfgPixKeyType:focus {
+      border-color: #d6a52f;
+      box-shadow: 0 0 0 4px rgba(214, 165, 47, 0.15);
+    }
+
+    #cfgPixKeyTypeHelp {
+      display: block;
+      margin-top: 7px;
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
     @media (max-width: 560px) {
       #loginView {
         padding: 18px 14px;
@@ -732,44 +757,69 @@
 
             <div class="form-grid">
               <label>
+                Tipo de chave Pix
+
+                <select
+                  id="cfgPixKeyType"
+                  aria-describedby="cfgPixKeyTypeHelp"
+                >
+                  <option value="cpf">CPF</option>
+                  <option value="email">E-mail</option>
+                  <option value="random">Chave aleatória</option>
+                  <option value="phone">Telefone</option>
+                </select>
+
+                <small
+                  class="muted"
+                  id="cfgPixKeyTypeHelp"
+                >
+                  Escolha o tipo de chave que será usado nos pagamentos.
+                </small>
+              </label>
+
+              <label>
                 Chave Pix
 
                 <input
                   id="cfgPixKey"
                   type="text"
-                >
-              </label>
-
-              <label>
-                Nome do recebedor
-
-                <input
-                  id="cfgPixName"
-                  type="text"
+                  placeholder="Digite a chave Pix"
+                  autocomplete="off"
                 >
               </label>
             </div>
 
             <div class="form-grid">
               <label>
+                Nome do recebedor
+
+                <input
+                  id="cfgPixName"
+                  type="text"
+                  placeholder="Nome do titular da chave"
+                >
+              </label>
+
+              <label>
                 Cidade Pix
 
                 <input
                   id="cfgPixCity"
                   type="text"
-                >
-              </label>
-
-              <label>
-                Link público
-
-                <input
-                  id="cfgShareLink"
-                  type="url"
-                  value="https://ailtonsouza.com.br/tocaai"
+                  placeholder="Cidade do recebedor"
                 >
               </label>
             </div>
+
+            <label>
+              Link público
+
+              <input
+                id="cfgShareLink"
+                type="url"
+                value="https://ailtonsouza.com.br/tocaai"
+              >
+            </label>
 
             <label>
               <input
