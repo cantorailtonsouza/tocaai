@@ -13,10 +13,18 @@ const DEFAULT_SETTINGS = {
   eventName: "Repertório da noite",
   intro:
     "Escolha uma playlist, encontre sua música favorita e envie seu pedido.",
+
   showLive: false,
+
   pixEnabled: true,
+
+  // NOVO
+  pixKeyType: "random",
+
   pixKey: "",
+
   pixName: "Ailton Souza",
+
   pixCity: "Luziania"
 };
 
