@@ -23,7 +23,7 @@ const DEFAULT_SETTINGS = {
 
   pixKey: "",
 
-  pixName: "Ailton Souza",
+  pixName: "Ailton Jesus de Souza",
 
   pixCity: "Luziania"
 };
