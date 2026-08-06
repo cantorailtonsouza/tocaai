@@ -7,10 +7,12 @@ import {
   onValue
 } from "../../firebase/client.js";
 
-const $ = (selector) => document.querySelector(selector);
+const $ = (selector) =>
+  document.querySelector(selector);
 
 const DEFAULT_SETTINGS = {
   eventName: "Repertório da noite",
+
   intro:
     "Escolha uma playlist, encontre sua música favorita e envie seu pedido.",
 
@@ -18,7 +20,7 @@ const DEFAULT_SETTINGS = {
 
   pixEnabled: true,
 
-  // NOVO
+  // Continua salvo para uso interno do painel.
   pixKeyType: "random",
 
   pixKey: "",
@@ -29,11 +31,18 @@ const DEFAULT_SETTINGS = {
 };
 
 const state = {
-  settings: { ...DEFAULT_SETTINGS },
+  settings: {
+    ...DEFAULT_SETTINGS
+  },
+
   playlists: {},
+
   currentPlaylist: null,
+
   currentSong: null,
+
   selectedValue: null,
+
   requestKey: null
 };
 
@@ -51,12 +60,16 @@ function esc(value = "") {
   );
 }
 
-/**
- * Carrega somente os dados públicos necessários.
- * Não lê a raiz inteira do Realtime Database.
- */
+
+/* =====================================================
+   CARREGAMENTO INICIAL
+===================================================== */
+
 async function loadInitial() {
-  const [settingsSnapshot, playlistsSnapshot] = await Promise.all([
+  const [
+    settingsSnapshot,
+    playlistsSnapshot
+  ] = await Promise.all([
     get(ref(db, "settings")),
     get(ref(db, "playlists"))
   ]);
@@ -66,13 +79,16 @@ async function loadInitial() {
     ...(settingsSnapshot.val() || {})
   };
 
-  state.playlists = playlistsSnapshot.val() || {};
+  state.playlists =
+    playlistsSnapshot.val() || {};
 
   applySettings();
+
   renderPlaylists();
 
   onValue(
     ref(db, "settings"),
+
     (snapshot) => {
       state.settings = {
         ...DEFAULT_SETTINGS,
@@ -81,6 +97,7 @@ async function loadInitial() {
 
       applySettings();
     },
+
     (error) => {
       console.error(
         "Erro ao acompanhar configurações:",
@@ -91,12 +108,16 @@ async function loadInitial() {
 
   onValue(
     ref(db, "playlists"),
+
     (snapshot) => {
-      state.playlists = snapshot.val() || {};
+      state.playlists =
+        snapshot.val() || {};
 
       if (state.currentPlaylist?.id) {
         const updatedPlaylist =
-          state.playlists[state.currentPlaylist.id];
+          state.playlists[
+            state.currentPlaylist.id
+          ];
 
         if (updatedPlaylist) {
           state.currentPlaylist = {
@@ -112,6 +133,7 @@ async function loadInitial() {
 
       renderPlaylists();
     },
+
     (error) => {
       console.error(
         "Erro ao acompanhar playlists:",
@@ -121,11 +143,33 @@ async function loadInitial() {
   );
 }
 
+
+/* =====================================================
+   CONFIGURAÇÕES PÚBLICAS
+===================================================== */
+
 function applySettings() {
-  const eventName = $("#eventName");
-  const introText = $("#introText");
-  const liveDot = $("#liveDot");
-  const liveText = $("#liveText");
+  const eventName =
+    $("#eventName");
+
+  const introText =
+    $("#introText");
+
+  const liveDot =
+    $("#liveDot");
+
+  const liveText =
+    $("#liveText");
+
+  const supportReceiver =
+    $("#supportPixReceiver");
+
+  const pixReceiver =
+    $("#pixReceiverName");
+
+  const pixName =
+    state.settings.pixName ||
+    DEFAULT_SETTINGS.pixName;
 
   if (eventName) {
     eventName.textContent =
@@ -139,10 +183,26 @@ function applySettings() {
       DEFAULT_SETTINGS.intro;
   }
 
-  const live = Boolean(state.settings.showLive);
+  if (supportReceiver) {
+    supportReceiver.textContent =
+      pixName;
+  }
+
+  if (pixReceiver) {
+    pixReceiver.textContent =
+      pixName;
+  }
+
+  const live =
+    Boolean(
+      state.settings.showLive
+    );
 
   if (liveDot) {
-    liveDot.classList.toggle("on", live);
+    liveDot.classList.toggle(
+      "on",
+      live
+    );
   }
 
   if (liveText) {
@@ -152,8 +212,15 @@ function applySettings() {
   }
 }
 
+
+/* =====================================================
+   PLAYLISTS
+===================================================== */
+
 function playlistEntries() {
-  return Object.entries(state.playlists || {}).filter(
+  return Object.entries(
+    state.playlists || {}
+  ).filter(
     ([, playlist]) =>
       playlist &&
       playlist.active === true
@@ -161,124 +228,170 @@ function playlistEntries() {
 }
 
 function renderPlaylists() {
-  const searchField = $("#playlistSearch");
-  const playlistList = $("#playlistList");
+  const searchField =
+    $("#playlistSearch");
+
+  const playlistList =
+    $("#playlistList");
 
   if (!playlistList) {
     return;
   }
 
-  const term = (searchField?.value || "")
-    .trim()
-    .toLowerCase();
+  const term =
+    (
+      searchField?.value || ""
+    )
+      .trim()
+      .toLowerCase();
 
-  const playlists = playlistEntries().filter(
-    ([, playlist]) =>
-      (playlist.name || "")
-        .toLowerCase()
-        .includes(term)
-  );
+  const playlists =
+    playlistEntries().filter(
+      ([, playlist]) =>
+        (
+          playlist.name || ""
+        )
+          .toLowerCase()
+          .includes(term)
+    );
 
   playlistList.innerHTML =
     playlists
-      .map(([id, playlist]) => {
-        const songs = Object.values(
-          playlist.songs || {}
-        );
+      .map(
+        ([id, playlist]) => {
+          const songs =
+            Object.values(
+              playlist.songs || {}
+            );
 
-        const songsCount = songs.length;
+          const songsCount =
+            songs.length;
 
-        /**
-         * Procura a música mais recentemente adicionada
-         * que possua miniatura.
-         */
-        const latestSong = songs
-          .filter(
-            (song) =>
-              song &&
-              song.thumbnail
-          )
-          .sort(
-            (songA, songB) =>
-              Number(songB.createdAt || 0) -
-              Number(songA.createdAt || 0)
-          )[0];
+          /*
+           * Encontra a música mais recente
+           * que possua uma miniatura.
+           */
+          const latestSong =
+            songs
+              .filter(
+                (song) =>
+                  song &&
+                  song.thumbnail
+              )
+              .sort(
+                (
+                  songA,
+                  songB
+                ) =>
+                  Number(
+                    songB.createdAt ||
+                      0
+                  ) -
+                  Number(
+                    songA.createdAt ||
+                      0
+                  )
+              )[0];
 
-        /**
-         * Ordem de prioridade da capa:
-         * 1. Capa manual da playlist
-         * 2. Miniatura da última música adicionada
-         * 3. Ícone da playlist
-         */
-        const coverImage =
-          playlist.coverUrl ||
-          latestSong?.thumbnail ||
-          "";
+          /*
+           * Prioridade da capa:
+           * 1. Capa manual da playlist;
+           * 2. Miniatura da última música;
+           * 3. Ícone da playlist.
+           */
+          const coverImage =
+            playlist.coverUrl ||
+            latestSong?.thumbnail ||
+            "";
 
-        const cover = coverImage
-          ? `
-            <img
-              src="${esc(coverImage)}"
-              alt="Capa da playlist ${esc(
-                playlist.name || ""
+          const cover =
+            coverImage
+              ? `
+                <img
+                  src="${esc(
+                    coverImage
+                  )}"
+                  alt="Capa da playlist ${esc(
+                    playlist.name ||
+                      ""
+                  )}"
+                  loading="lazy"
+                >
+              `
+              : esc(
+                  playlist.icon ||
+                    "🎵"
+                );
+
+          return `
+            <article
+              class="playlist"
+              data-id="${esc(id)}"
+              tabindex="0"
+              role="button"
+              aria-label="Abrir playlist ${esc(
+                playlist.name ||
+                  ""
               )}"
-              loading="lazy"
             >
-          `
-          : esc(playlist.icon || "🎵");
 
-        return `
-          <article
-            class="playlist"
-            data-id="${esc(id)}"
-            tabindex="0"
-            role="button"
-            aria-label="Abrir playlist ${esc(
-              playlist.name || ""
-            )}"
-          >
-            <div class="cover">
-              ${cover}
-            </div>
+              <div class="cover">
+                ${cover}
+              </div>
 
-            <div class="meta">
-              <h3>
-                ${esc(
-                  playlist.name || "Playlist"
-                )}
-              </h3>
+              <div class="meta">
 
-              <span class="muted">
-                ${songsCount}/100 músicas
-              </span>
-            </div>
+                <h3>
+                  ${esc(
+                    playlist.name ||
+                      "Playlist"
+                  )}
+                </h3>
 
-            <button
-              class="btn btn-primary"
-              type="button"
-              data-open-playlist="${esc(id)}"
-            >
-              Abrir
-            </button>
-          </article>
-        `;
-      })
+                <span class="muted">
+                  ${songsCount}/100 músicas
+                </span>
+
+              </div>
+
+              <button
+                class="btn btn-primary"
+                type="button"
+                data-open-playlist="${esc(
+                  id
+                )}"
+              >
+                Abrir
+              </button>
+
+            </article>
+          `;
+        }
+      )
       .join("") ||
     `
       <div class="card">
-        <h3>Nenhuma playlist ativa</h3>
+
+        <h3>
+          Nenhuma playlist ativa
+        </h3>
 
         <p class="muted">
           O cantor ainda não ativou uma playlist.
         </p>
+
       </div>
     `;
 
   document
-    .querySelectorAll(".playlist[data-id]")
+    .querySelectorAll(
+      ".playlist[data-id]"
+    )
     .forEach((element) => {
       const open = () => {
-        openPlaylist(element.dataset.id);
+        openPlaylist(
+          element.dataset.id
+        );
       };
 
       element.addEventListener(
@@ -288,12 +401,14 @@ function renderPlaylists() {
 
       element.addEventListener(
         "keydown",
+
         (event) => {
           if (
             event.key === "Enter" ||
             event.key === " "
           ) {
             event.preventDefault();
+
             open();
           }
         }
@@ -302,7 +417,8 @@ function renderPlaylists() {
 }
 
 function openPlaylist(id) {
-  const playlist = state.playlists[id];
+  const playlist =
+    state.playlists[id];
 
   if (
     !playlist ||
@@ -322,10 +438,17 @@ function openPlaylist(id) {
 
   state.currentSong = null;
 
-  const playlistView = $("#playlistView");
-  const songView = $("#songView");
-  const songTitle = $("#songTitle");
-  const songSearch = $("#songSearch");
+  const playlistView =
+    $("#playlistView");
+
+  const songView =
+    $("#songView");
+
+  const songTitle =
+    $("#songTitle");
+
+  const songSearch =
+    $("#songSearch");
 
   if (playlistView) {
     playlistView.hidden = true;
@@ -354,8 +477,11 @@ function openPlaylist(id) {
 }
 
 function closePlaylist() {
-  const playlistView = $("#playlistView");
-  const songView = $("#songView");
+  const playlistView =
+    $("#playlistView");
+
+  const songView =
+    $("#songView");
 
   if (songView) {
     songView.hidden = true;
@@ -366,12 +492,19 @@ function closePlaylist() {
   }
 
   state.currentPlaylist = null;
+
   state.currentSong = null;
 }
 
+
+/* =====================================================
+   MÚSICAS
+===================================================== */
+
 function songEntries() {
   return Object.entries(
-    state.currentPlaylist?.songs || {}
+    state.currentPlaylist
+      ?.songs || {}
   ).filter(
     ([, song]) =>
       song &&
@@ -380,111 +513,143 @@ function songEntries() {
 }
 
 function renderSongs() {
-  const searchField = $("#songSearch");
-  const songList = $("#songList");
+  const searchField =
+    $("#songSearch");
+
+  const songList =
+    $("#songList");
 
   if (!songList) {
     return;
   }
 
-  const term = (searchField?.value || "")
-    .trim()
-    .toLowerCase();
+  const term =
+    (
+      searchField?.value || ""
+    )
+      .trim()
+      .toLowerCase();
 
-  const songs = songEntries().filter(
-    ([, song]) => {
-      const searchableText = [
-        song.title || "",
-        song.artist || ""
-      ]
-        .join(" ")
-        .toLowerCase();
+  const songs =
+    songEntries().filter(
+      ([, song]) => {
+        const searchableText =
+          [
+            song.title || "",
+            song.artist || ""
+          ]
+            .join(" ")
+            .toLowerCase();
 
-      return searchableText.includes(term);
-    }
-  );
+        return searchableText.includes(
+          term
+        );
+      }
+    );
 
   songList.innerHTML =
     songs
-      .map(([id, song]) => {
-        const thumbnail = song.thumbnail
-          ? `
-            <img
-              class="song-thumb"
-              src="${esc(song.thumbnail)}"
-              alt="Miniatura de ${esc(
-                song.title || ""
-              )}"
-              loading="lazy"
-            >
-          `
-          : `
-            <div
-              class="song-thumb song-thumb-placeholder"
-              aria-hidden="true"
-            >
-              🎵
-            </div>
-          `;
-
-        const favoriteTag = song.favorite
-          ? `
-            <span class="tag">
-              ★ Favorita do cantor
-            </span>
-          `
-          : "";
-
-        return `
-          <article class="song">
-            <div class="song-main">
-              ${thumbnail}
-
-              <div>
-                <h4>
-                  ${esc(
+      .map(
+        ([id, song]) => {
+          const thumbnail =
+            song.thumbnail
+              ? `
+                <img
+                  class="song-thumb"
+                  src="${esc(
+                    song.thumbnail
+                  )}"
+                  alt="Miniatura de ${esc(
                     song.title ||
-                    "Música sem título"
-                  )}
-                </h4>
+                      ""
+                  )}"
+                  loading="lazy"
+                >
+              `
+              : `
+                <div
+                  class="song-thumb song-thumb-placeholder"
+                  aria-hidden="true"
+                >
+                  🎵
+                </div>
+              `;
 
-                <p class="muted">
-                  ${esc(
-                    song.artist ||
-                    "Artista não informado"
-                  )}
-                </p>
+          const favoriteTag =
+            song.favorite
+              ? `
+                <span class="tag">
+                  ★ Favorita do cantor
+                </span>
+              `
+              : "";
 
-                ${favoriteTag}
+          return `
+            <article class="song">
+
+              <div class="song-main">
+
+                ${thumbnail}
+
+                <div>
+
+                  <h4>
+                    ${esc(
+                      song.title ||
+                        "Música sem título"
+                    )}
+                  </h4>
+
+                  <p class="muted">
+                    ${esc(
+                      song.artist ||
+                        "Artista não informado"
+                    )}
+                  </p>
+
+                  ${favoriteTag}
+
+                </div>
+
               </div>
-            </div>
 
-            <button
-              class="btn btn-primary"
-              type="button"
-              data-song="${esc(id)}"
-            >
-              Pedir música
-            </button>
-          </article>
-        `;
-      })
+              <button
+                class="btn btn-primary"
+                type="button"
+                data-song="${esc(
+                  id
+                )}"
+              >
+                Pedir música
+              </button>
+
+            </article>
+          `;
+        }
+      )
       .join("") ||
     `
       <div class="card">
-        <h3>Nenhuma música encontrada</h3>
+
+        <h3>
+          Nenhuma música encontrada
+        </h3>
 
         <p class="muted">
           Tente pesquisar usando outro nome.
         </p>
+
       </div>
     `;
 
   document
-    .querySelectorAll("[data-song]")
+    .querySelectorAll(
+      "[data-song]"
+    )
     .forEach((button) => {
       button.addEventListener(
         "click",
+
         () => {
           openRequest(
             button.dataset.song
@@ -494,8 +659,15 @@ function renderSongs() {
     });
 }
 
+
+/* =====================================================
+   ABRIR PEDIDO
+===================================================== */
+
 function openRequest(songId) {
-  if (!state.settings.showLive) {
+  if (
+    !state.settings.showLive
+  ) {
     alert(
       "Os pedidos estão fechados neste momento."
     );
@@ -504,7 +676,8 @@ function openRequest(songId) {
   }
 
   const song =
-    state.currentPlaylist?.songs?.[songId];
+    state.currentPlaylist
+      ?.songs?.[songId];
 
   if (
     !song ||
@@ -522,34 +695,70 @@ function openRequest(songId) {
     ...song
   };
 
-  const chosenSong = $("#chosenSong");
-  const chosenArtist = $("#chosenArtist");
-  const requestModal = $("#requestModal");
+  const chosenSong =
+    $("#chosenSong");
+
+  const chosenArtist =
+    $("#chosenArtist");
+
+  const requestModal =
+    $("#requestModal");
 
   if (chosenSong) {
     chosenSong.textContent =
-      state.currentSong.title || "";
+      state.currentSong.title ||
+      "";
   }
 
   if (chosenArtist) {
     chosenArtist.textContent =
-      state.currentSong.artist || "";
+      state.currentSong.artist ||
+      "";
   }
 
   if (requestModal) {
-    requestModal.classList.add("open");
+    requestModal.classList.add(
+      "open"
+    );
   }
 }
 
-const playlistSearch = $("#playlistSearch");
-const songSearch = $("#songSearch");
-const backButton = $("#backBtn");
-const requestForm = $("#requestForm");
-const generatePixButton = $("#generatePix");
-const copyPixButton = $("#copyPix");
-const finishPixButton = $("#finishPix");
-const skipSupportButton = $("#skipSupport");
-const doneButton = $("#doneBtn");
+
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+
+const playlistSearch =
+  $("#playlistSearch");
+
+const songSearch =
+  $("#songSearch");
+
+const backButton =
+  $("#backBtn");
+
+const requestForm =
+  $("#requestForm");
+
+const generatePixButton =
+  $("#generatePix");
+
+const copyPixButton =
+  $("#copyPix");
+
+const finishPixButton =
+  $("#finishPix");
+
+const skipSupportButton =
+  $("#skipSupport");
+
+const doneButton =
+  $("#doneBtn");
+
+
+/* =====================================================
+   PESQUISAS
+===================================================== */
 
 if (playlistSearch) {
   playlistSearch.addEventListener(
@@ -572,9 +781,15 @@ if (backButton) {
   );
 }
 
+
+/* =====================================================
+   ENVIO DO PEDIDO
+===================================================== */
+
 if (requestForm) {
   requestForm.addEventListener(
     "submit",
+
     async (event) => {
       event.preventDefault();
 
@@ -590,11 +805,14 @@ if (requestForm) {
       }
 
       const customerName =
-        $("#customerName")?.value.trim() ||
+        $("#customerName")
+          ?.value.trim() ||
         "";
 
       if (!customerName) {
-        alert("Informe seu nome.");
+        alert(
+          "Informe seu nome."
+        );
 
         $("#customerName")?.focus();
 
@@ -608,59 +826,67 @@ if (requestForm) {
 
       if (submitButton) {
         submitButton.disabled = true;
+
         submitButton.textContent =
           "Enviando...";
       }
 
       try {
-        const requestReference = push(
-          ref(db, "requests")
-        );
+        const requestReference =
+          push(
+            ref(
+              db,
+              "requests"
+            )
+          );
 
         state.requestKey =
           requestReference.key;
 
         const requestData = {
-          id: requestReference.key,
+          id:
+            requestReference.key,
 
           playlistId:
             state.currentPlaylist.id,
 
           playlistName:
-            state.currentPlaylist.name ||
-            "",
+            state.currentPlaylist
+              .name || "",
 
           songId:
             state.currentSong.id,
 
           song:
-            state.currentSong.title ||
-            "",
+            state.currentSong
+              .title || "",
 
           artist:
-            state.currentSong.artist ||
-            "",
+            state.currentSong
+              .artist || "",
 
           thumbnail:
-            state.currentSong.thumbnail ||
-            "",
+            state.currentSong
+              .thumbnail || "",
 
           source:
-            state.currentSong.source ||
-            "",
+            state.currentSong
+              .source || "",
 
           sourceId:
-            state.currentSong.sourceId ||
-            "",
+            state.currentSong
+              .sourceId || "",
 
           customerName,
 
           table:
-            $("#customerTable")?.value.trim() ||
+            $("#customerTable")
+              ?.value.trim() ||
             "",
 
           message:
-            $("#customerMessage")?.value.trim() ||
+            $("#customerMessage")
+              ?.value.trim() ||
             "",
 
           status: "new",
@@ -669,7 +895,8 @@ if (requestForm) {
 
           priority: false,
 
-          createdAt: Date.now()
+          createdAt:
+            Date.now()
         };
 
         await set(
@@ -677,16 +904,20 @@ if (requestForm) {
           requestData
         );
 
-        $("#requestModal")?.classList.remove(
-          "open"
-        );
+        $("#requestModal")
+          ?.classList.remove(
+            "open"
+          );
 
         requestForm.reset();
 
-        state.selectedValue = null;
+        state.selectedValue =
+          null;
 
         document
-          .querySelectorAll(".value")
+          .querySelectorAll(
+            ".value"
+          )
           .forEach((button) => {
             button.classList.remove(
               "active"
@@ -694,13 +925,17 @@ if (requestForm) {
           });
 
         if (generatePixButton) {
-          generatePixButton.disabled = true;
+          generatePixButton.disabled =
+            true;
         }
 
-        if (state.settings.pixEnabled) {
-          $("#supportModal")?.classList.add(
-            "open"
-          );
+        if (
+          state.settings.pixEnabled
+        ) {
+          $("#supportModal")
+            ?.classList.add(
+              "open"
+            );
         } else {
           showDone(
             "Seu pedido foi recebido pelo Ailton Souza."
@@ -717,7 +952,8 @@ if (requestForm) {
         );
       } finally {
         if (submitButton) {
-          submitButton.disabled = false;
+          submitButton.disabled =
+            false;
 
           submitButton.textContent =
             "Enviar pedido";
@@ -727,35 +963,59 @@ if (requestForm) {
   );
 }
 
+
+/* =====================================================
+   VALORES DO APOIO
+===================================================== */
+
 document
-  .querySelectorAll("[data-value]")
+  .querySelectorAll(
+    "[data-value]"
+  )
   .forEach((button) => {
     button.addEventListener(
       "click",
+
       () => {
         document
-          .querySelectorAll(".value")
+          .querySelectorAll(
+            ".value"
+          )
           .forEach((item) => {
             item.classList.remove(
               "active"
             );
           });
 
-        button.classList.add("active");
+        button.classList.add(
+          "active"
+        );
 
         const rawValue =
           button.dataset.value;
 
-        if (rawValue === "custom") {
-          const customValue = prompt(
-            "Digite o valor em reais:"
-          );
+        if (
+          rawValue === "custom"
+        ) {
+          const customValue =
+            prompt(
+              "Digite o valor em reais:"
+            );
 
-          state.selectedValue = Number(
-            String(customValue || "")
-              .replace(/[^\d,.-]/g, "")
-              .replace(",", ".")
-          );
+          state.selectedValue =
+            Number(
+              String(
+                customValue || ""
+              )
+                .replace(
+                  /[^\d,.-]/g,
+                  ""
+                )
+                .replace(
+                  ",",
+                  "."
+                )
+            );
         } else {
           state.selectedValue =
             Number(rawValue);
@@ -765,9 +1025,11 @@ document
           !Number.isFinite(
             state.selectedValue
           ) ||
-          state.selectedValue <= 0
+          state.selectedValue <=
+            0
         ) {
-          state.selectedValue = null;
+          state.selectedValue =
+            null;
 
           button.classList.remove(
             "active"
@@ -776,19 +1038,30 @@ document
 
         if (generatePixButton) {
           generatePixButton.disabled =
-            !(state.selectedValue > 0);
+            !(
+              state.selectedValue >
+              0
+            );
         }
       }
     );
   });
 
+
+/* =====================================================
+   GERAR PIX
+===================================================== */
+
 if (generatePixButton) {
   generatePixButton.addEventListener(
     "click",
+
     async () => {
-      const value = Number(
-        state.selectedValue || 0
-      );
+      const value =
+        Number(
+          state.selectedValue ||
+            0
+        );
 
       if (
         !(value > 0) ||
@@ -797,7 +1070,8 @@ if (generatePixButton) {
         return;
       }
 
-      generatePixButton.disabled = true;
+      generatePixButton.disabled =
+        true;
 
       generatePixButton.textContent =
         "Gerando PIX...";
@@ -821,69 +1095,75 @@ if (generatePixButton) {
           )
         ]);
 
-        $("#supportModal")?.classList.remove(
-          "open"
-        );
+        $("#supportModal")
+          ?.classList.remove(
+            "open"
+          );
 
-        const pixAmount = $("#pixAmount");
+        const pixAmount =
+          $("#pixAmount");
 
         if (pixAmount) {
           pixAmount.textContent =
             `Valor: R$ ${value
               .toFixed(2)
-              .replace(".", ",")}`;
+              .replace(
+                ".",
+                ","
+              )}`;
         }
 
-const pixKeyType =
-  state.settings.pixKeyType || "random";
+        const pixKey =
+          state.settings.pixKey ||
+          "";
 
-const pixKey =
-  state.settings.pixKey || "";
+        const pixName =
+          state.settings.pixName ||
+          "Ailton Jesus de Souza";
 
-const pixName =
-  state.settings.pixName ||
-  "Ailton Souza";
+        const pixCity =
+          state.settings.pixCity ||
+          "Luziania";
 
-const pixCity =
-  state.settings.pixCity ||
-  "Luziania";
-        const PIX_KEY_TYPES = {
-  cpf: "CPF",
-  email: "E-mail",
-  phone: "Telefone",
-  random: "Chave aleatória"
-};
-
-const pixKeyTypeLabel =
-  PIX_KEY_TYPES[pixKeyType] || "Chave Pix";
-
-        const pixPayload = $("#pixPayload");
+        const pixPayload =
+          $("#pixPayload");
 
         if (pixPayload) {
           pixPayload.value =
             `PIX|CHAVE:${pixKey}` +
             `|NOME:${pixName}` +
             `|CIDADE:${pixCity}` +
-            `|VALOR:${value.toFixed(2)}` +
+            `|VALOR:${value.toFixed(
+              2
+            )}` +
             `|REF:${state.requestKey}`;
         }
 
-        $("#pixModal")?.classList.add(
-          "open"
-        );
-        // Atualiza as informações da tela de apoio
-$("#supportPixKeyType").textContent =
-  pixKeyTypeLabel;
+        /*
+         * Exibe somente o nome do recebedor.
+         * O tipo da chave permanece apenas
+         * no painel interno.
+         */
+        const supportReceiver =
+          $("#supportPixReceiver");
 
-$("#supportPixReceiver").textContent =
-  pixName;
+        const pixReceiver =
+          $("#pixReceiverName");
 
-// Atualiza as informações da tela do Pix
-$("#pixKeyTypeLabel").textContent =
-  pixKeyTypeLabel;
+        if (supportReceiver) {
+          supportReceiver.textContent =
+            pixName;
+        }
 
-$("#pixReceiverName").textContent =
-  pixName;
+        if (pixReceiver) {
+          pixReceiver.textContent =
+            pixName;
+        }
+
+        $("#pixModal")
+          ?.classList.add(
+            "open"
+          );
       } catch (error) {
         console.error(
           "Erro ao gerar PIX:",
@@ -894,18 +1174,25 @@ $("#pixReceiverName").textContent =
           "Não foi possível gerar o PIX. O pedido já foi enviado normalmente."
         );
       } finally {
-        generatePixButton.disabled = false;
+        generatePixButton.disabled =
+          false;
 
         generatePixButton.textContent =
-          "Gerar PIX";
+          "Gerar Pix";
       }
     }
   );
 }
 
+
+/* =====================================================
+   COPIAR PIX
+===================================================== */
+
 if (copyPixButton) {
   copyPixButton.addEventListener(
     "click",
+
     async () => {
       const pixField =
         $("#pixPayload");
@@ -918,9 +1205,10 @@ if (copyPixButton) {
       }
 
       try {
-        await navigator.clipboard.writeText(
-          pixPayload
-        );
+        await navigator.clipboard
+          .writeText(
+            pixPayload
+          );
 
         copyPixButton.textContent =
           "Copiado!";
@@ -932,9 +1220,12 @@ if (copyPixButton) {
 
         if (pixField) {
           pixField.focus();
+
           pixField.select();
 
-          document.execCommand("copy");
+          document.execCommand(
+            "copy"
+          );
 
           copyPixButton.textContent =
             "Copiado!";
@@ -944,13 +1235,20 @@ if (copyPixButton) {
   );
 }
 
+
+/* =====================================================
+   FINALIZAR
+===================================================== */
+
 if (finishPixButton) {
   finishPixButton.addEventListener(
     "click",
+
     () => {
-      $("#pixModal")?.classList.remove(
-        "open"
-      );
+      $("#pixModal")
+        ?.classList.remove(
+          "open"
+        );
 
       showDone(
         "Seu pedido foi recebido. Obrigado por apoiar o artista."
@@ -962,10 +1260,12 @@ if (finishPixButton) {
 if (skipSupportButton) {
   skipSupportButton.addEventListener(
     "click",
+
     () => {
-      $("#supportModal")?.classList.remove(
-        "open"
-      );
+      $("#supportModal")
+        ?.classList.remove(
+          "open"
+        );
 
       showDone(
         "Seu pedido foi recebido pelo Ailton Souza."
@@ -977,46 +1277,66 @@ if (skipSupportButton) {
 if (doneButton) {
   doneButton.addEventListener(
     "click",
+
     () => {
-      $("#doneModal")?.classList.remove(
-        "open"
-      );
+      $("#doneModal")
+        ?.classList.remove(
+          "open"
+        );
     }
   );
 }
 
 function showDone(text) {
-  const doneText = $("#doneText");
-  const doneModal = $("#doneModal");
+  const doneText =
+    $("#doneText");
+
+  const doneModal =
+    $("#doneModal");
 
   if (doneText) {
-    doneText.textContent = text;
+    doneText.textContent =
+      text;
   }
 
   if (doneModal) {
-    doneModal.classList.add("open");
+    doneModal.classList.add(
+      "open"
+    );
   }
 }
 
-loadInitial().catch((error) => {
-  console.error(
-    "Erro ao carregar repertório:",
-    error
-  );
 
-  const playlistList = $("#playlistList");
+/* =====================================================
+   INICIAR
+===================================================== */
 
-  if (playlistList) {
-    playlistList.innerHTML = `
-      <div class="card">
-        <h3>
-          Não foi possível carregar o repertório
-        </h3>
+loadInitial().catch(
+  (error) => {
+    console.error(
+      "Erro ao carregar repertório:",
+      error
+    );
 
-        <p class="muted">
-          ${esc(error.message)}
-        </p>
-      </div>
-    `;
+    const playlistList =
+      $("#playlistList");
+
+    if (playlistList) {
+      playlistList.innerHTML = `
+        <div class="card">
+
+          <h3>
+            Não foi possível carregar o repertório
+          </h3>
+
+          <p class="muted">
+            ${esc(
+              error.message
+            )}
+          </p>
+
+        </div>
+      `;
+    }
   }
-});
+);
