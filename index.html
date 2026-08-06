@@ -2,87 +2,569 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <meta
+    name="theme-color"
+    content="#090909"
+  >
+
   <title>Toca Aí • Ailton Souza</title>
-  <meta name="description" content="Escolha uma música e envie seu pedido para o show de Ailton Souza.">
-  <link rel="stylesheet" href="./assets/css/styles.css">
+
+  <meta
+    name="description"
+    content="Escolha uma música e envie seu pedido para o show de Ailton Souza."
+  >
+
+  <link
+    rel="stylesheet"
+    href="./assets/css/styles.css"
+  >
+
+  <style>
+    /* Informações do Pix */
+    .pix-info {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+      padding: 16px;
+
+      color: #17130b;
+      background: #fffaf0;
+      border: 1px solid #ead7a7;
+      border-radius: 16px;
+    }
+
+    .pix-info-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .pix-info-label {
+      color: #7c715f;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+
+    .pix-info-value {
+      color: #17130b;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .pix-info-title {
+      margin: 0 0 2px;
+      color: #9a7017;
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pix-security-note {
+      margin: 14px 0 0;
+      color: #776f63;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (max-width: 520px) {
+      .pix-info-row {
+        display: grid;
+        gap: 3px;
+      }
+
+      .pix-info-value {
+        text-align: left;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="app">
-  <header class="top">
-    <div class="wrap topin">
-      <div class="brand">
-        <img src="./assets/img/logo-ailton-souza.png" alt="Ailton Souza">
-        <div><small>TOCA AÍ</small><h1>Ailton Souza</h1></div>
+
+  <div class="app">
+
+    <header class="top">
+
+      <div class="wrap topin">
+
+        <div class="brand">
+          <img
+            src="./assets/img/logo-ailton-souza.png"
+            alt="Ailton Souza"
+          >
+
+          <div>
+            <small>TOCA AÍ</small>
+            <h1>Ailton Souza</h1>
+          </div>
+        </div>
+
+        <div class="livebar">
+          <span
+            id="liveDot"
+            class="live-dot"
+          ></span>
+
+          <strong id="liveText">
+            Pedidos fechados
+          </strong>
+        </div>
+
       </div>
-      <div class="livebar"><span id="liveDot" class="live-dot"></span><strong id="liveText">Pedidos fechados</strong></div>
-    </div>
-    <div class="wrap hero">
-      <h2 id="eventName">Repertório da noite</h2>
-      <p id="introText">Escolha uma playlist, encontre sua música favorita e envie seu pedido.</p>
-    </div>
-  </header>
 
-  <main class="wrap">
-    <section class="section" id="playlistView">
-      <div class="section-head"><h2>Escolha uma playlist</h2></div>
-      <label class="search">⌕<input id="playlistSearch" placeholder="Buscar playlists..."></label>
-      <div class="grid" id="playlistList" style="margin-top:16px"></div>
-    </section>
+      <div class="wrap hero">
 
-    <section class="section" id="songView" hidden>
-      <button class="btn btn-ghost" id="backBtn">← Voltar</button>
-      <div class="section-head" style="margin-top:18px">
-        <div><small class="muted">REPERTÓRIO</small><h2 id="songTitle"></h2></div>
+        <h2 id="eventName">
+          Repertório da noite
+        </h2>
+
+        <p id="introText">
+          Escolha uma playlist, encontre sua música favorita e envie seu pedido.
+        </p>
+
       </div>
-      <label class="search">⌕<input id="songSearch" placeholder="Buscar música ou artista"></label>
-      <div class="grid" id="songList" style="margin-top:16px"></div>
-    </section>
-  </main>
-</div>
 
-<div class="modal" id="requestModal"><div class="sheet"><div class="grab"></div>
-  <h2>Enviar pedido</h2>
-  <div class="notice"><strong id="chosenSong"></strong><br><span id="chosenArtist"></span></div>
-  <form class="form" id="requestForm">
-    <div class="form-grid">
-      <label>Seu nome<input id="customerName" required maxlength="60"></label>
-      <label>Mesa (opcional)<input id="customerTable" maxlength="20"></label>
+    </header>
+
+
+    <main class="wrap">
+
+      <!-- PLAYLISTS -->
+
+      <section
+        class="section"
+        id="playlistView"
+      >
+
+        <div class="section-head">
+          <h2>
+            Escolha uma playlist
+          </h2>
+        </div>
+
+        <label class="search">
+          <span aria-hidden="true">⌕</span>
+
+          <input
+            id="playlistSearch"
+            type="search"
+            placeholder="Buscar playlists..."
+            autocomplete="off"
+          >
+        </label>
+
+        <div
+          class="grid"
+          id="playlistList"
+          style="margin-top:16px"
+        ></div>
+
+      </section>
+
+
+      <!-- MÚSICAS -->
+
+      <section
+        class="section"
+        id="songView"
+        hidden
+      >
+
+        <button
+          class="btn btn-ghost"
+          id="backBtn"
+          type="button"
+        >
+          ← Voltar
+        </button>
+
+        <div
+          class="section-head"
+          style="margin-top:18px"
+        >
+          <div>
+            <small class="muted">
+              REPERTÓRIO
+            </small>
+
+            <h2 id="songTitle"></h2>
+          </div>
+        </div>
+
+        <label class="search">
+          <span aria-hidden="true">⌕</span>
+
+          <input
+            id="songSearch"
+            type="search"
+            placeholder="Buscar música ou artista"
+            autocomplete="off"
+          >
+        </label>
+
+        <div
+          class="grid"
+          id="songList"
+          style="margin-top:16px"
+        ></div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- MODAL DO PEDIDO -->
+
+  <div
+    class="modal"
+    id="requestModal"
+  >
+    <div class="sheet">
+
+      <div class="grab"></div>
+
+      <h2>
+        Enviar pedido
+      </h2>
+
+      <div class="notice">
+        <strong id="chosenSong"></strong>
+        <br>
+        <span id="chosenArtist"></span>
+      </div>
+
+      <form
+        class="form"
+        id="requestForm"
+      >
+
+        <div class="form-grid">
+
+          <label>
+            Seu nome
+
+            <input
+              id="customerName"
+              type="text"
+              required
+              maxlength="60"
+              autocomplete="name"
+            >
+          </label>
+
+          <label>
+            Mesa (opcional)
+
+            <input
+              id="customerTable"
+              type="text"
+              maxlength="20"
+            >
+          </label>
+
+        </div>
+
+        <label>
+          Dedicatória ou mensagem (opcional)
+
+          <textarea
+            id="customerMessage"
+            rows="3"
+            maxlength="240"
+          ></textarea>
+        </label>
+
+        <button
+          class="btn btn-primary"
+          type="submit"
+          style="width:100%"
+        >
+          Continuar
+        </button>
+
+      </form>
+
     </div>
-    <label>Dedicatória ou mensagem (opcional)<textarea id="customerMessage" rows="3" maxlength="240"></textarea></label>
-    <button class="btn btn-primary" style="width:100%">Continuar</button>
-  </form>
-</div></div>
-
-<div class="modal" id="supportModal"><div class="sheet"><div class="grab"></div>
-  <h2>Apoiar o artista</h2>
-  <div class="notice"><strong>Apoie o artista via Pix</strong><p>Seu pedido já foi registrado. A contribuição é opcional.</p></div>
-  <div class="values">
-    <button class="value" data-value="10">R$ 10</button>
-    <button class="value" data-value="20">R$ 20</button>
-    <button class="value" data-value="30">R$ 30</button>
-    <button class="value" data-value="50">R$ 50</button>
-    <button class="value" data-value="custom">Outro</button>
   </div>
-  <button class="btn btn-primary" id="generatePix" style="width:100%" disabled>Gerar Pix</button>
-  <button class="btn btn-ghost" id="skipSupport" style="width:100%;margin-top:10px">Não apoiar agora</button>
-</div></div>
 
-<div class="modal" id="pixModal"><div class="sheet"><div class="grab"></div>
-  <h2>Pagamento Pix</h2>
-  <div class="card"><strong id="pixAmount"></strong><p class="muted">Copie o código abaixo e cole no aplicativo do seu banco.</p></div>
-  <div class="pixcode" style="margin-top:14px">
-    <textarea id="pixPayload" readonly></textarea>
-    <button class="btn btn-primary" id="copyPix">Copiar</button>
+
+  <!-- MODAL DE APOIO -->
+
+  <div
+    class="modal"
+    id="supportModal"
+  >
+    <div class="sheet">
+
+      <div class="grab"></div>
+
+      <h2>
+        Apoiar o artista
+      </h2>
+
+      <div class="notice">
+        <strong>
+          Apoie o artista via Pix
+        </strong>
+
+        <p>
+          Seu pedido já foi registrado. A contribuição é opcional.
+        </p>
+      </div>
+
+      <!-- NOVA ÁREA DE INFORMAÇÕES PIX -->
+
+      <div class="pix-info">
+
+        <p class="pix-info-title">
+          Dados para pagamento
+        </p>
+
+        <div class="pix-info-row">
+          <span class="pix-info-label">
+            Tipo de chave
+          </span>
+
+          <strong
+            class="pix-info-value"
+            id="supportPixKeyType"
+          >
+            Chave aleatória
+          </strong>
+        </div>
+
+        <div class="pix-info-row">
+          <span class="pix-info-label">
+            Recebedor
+          </span>
+
+          <strong
+            class="pix-info-value"
+            id="supportPixReceiver"
+          >
+            Ailton Jesus de Souza
+          </strong>
+        </div>
+
+      </div>
+
+      <div class="values">
+
+        <button
+          class="value"
+          type="button"
+          data-value="10"
+        >
+          R$ 10
+        </button>
+
+        <button
+          class="value"
+          type="button"
+          data-value="20"
+        >
+          R$ 20
+        </button>
+
+        <button
+          class="value"
+          type="button"
+          data-value="30"
+        >
+          R$ 30
+        </button>
+
+        <button
+          class="value"
+          type="button"
+          data-value="50"
+        >
+          R$ 50
+        </button>
+
+        <button
+          class="value"
+          type="button"
+          data-value="custom"
+        >
+          Outro
+        </button>
+
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="generatePix"
+        type="button"
+        style="width:100%"
+        disabled
+      >
+        Gerar Pix
+      </button>
+
+      <button
+        class="btn btn-ghost"
+        id="skipSupport"
+        type="button"
+        style="width:100%;margin-top:10px"
+      >
+        Não apoiar agora
+      </button>
+
+    </div>
   </div>
-  <p class="muted">Esta versão gera um Pix copia e cola estático. A confirmação automática de pagamento exige um provedor de pagamento com servidor.</p>
-  <button class="btn btn-ghost" id="finishPix" style="width:100%">Concluir</button>
-</div></div>
 
-<div class="modal" id="doneModal"><div class="sheet"><div class="grab"></div>
-  <div class="notice"><h2>Pedido enviado!</h2><p id="doneText">Seu pedido foi recebido pelo Ailton Souza.</p></div>
-  <button class="btn btn-primary" id="doneBtn" style="width:100%">Continuar no repertório</button>
-</div></div>
 
-<script type="module" src="./assets/js/public.js"></script>
-</body></html>
+  <!-- MODAL DO PIX -->
+
+  <div
+    class="modal"
+    id="pixModal"
+  >
+    <div class="sheet">
+
+      <div class="grab"></div>
+
+      <h2>
+        Pagamento Pix
+      </h2>
+
+      <div class="card">
+
+        <strong id="pixAmount"></strong>
+
+        <p class="muted">
+          Copie o código abaixo e cole no aplicativo do seu banco.
+        </p>
+
+      </div>
+
+      <!-- NOVA ÁREA DE IDENTIFICAÇÃO PIX -->
+
+      <div class="pix-info">
+
+        <p class="pix-info-title">
+          Confira antes de pagar
+        </p>
+
+        <div class="pix-info-row">
+          <span class="pix-info-label">
+            Tipo de chave
+          </span>
+
+          <strong
+            class="pix-info-value"
+            id="pixKeyTypeLabel"
+          >
+            Chave aleatória
+          </strong>
+        </div>
+
+        <div class="pix-info-row">
+          <span class="pix-info-label">
+            Recebedor
+          </span>
+
+          <strong
+            class="pix-info-value"
+            id="pixReceiverName"
+          >
+            Ailton Jesus de Souza
+          </strong>
+        </div>
+
+      </div>
+
+      <div
+        class="pixcode"
+        style="margin-top:14px"
+      >
+
+        <textarea
+          id="pixPayload"
+          readonly
+          aria-label="Código Pix Copia e Cola"
+        ></textarea>
+
+        <button
+          class="btn btn-primary"
+          id="copyPix"
+          type="button"
+        >
+          Copiar código Pix
+        </button>
+
+      </div>
+
+      <p class="pix-security-note">
+        Antes de confirmar o pagamento, confira no aplicativo do banco se o recebedor é Ailton Jesus de Souza.
+      </p>
+
+      <button
+        class="btn btn-ghost"
+        id="finishPix"
+        type="button"
+        style="width:100%"
+      >
+        Concluir
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- MODAL DE CONFIRMAÇÃO -->
+
+  <div
+    class="modal"
+    id="doneModal"
+  >
+    <div class="sheet">
+
+      <div class="grab"></div>
+
+      <div class="notice">
+
+        <h2>
+          Pedido enviado!
+        </h2>
+
+        <p id="doneText">
+          Seu pedido foi recebido pelo Ailton Souza.
+        </p>
+
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="doneBtn"
+        type="button"
+        style="width:100%"
+      >
+        Continuar no repertório
+      </button>
+
+    </div>
+  </div>
+
+
+  <script
+    type="module"
+    src="./assets/js/public.js"
+  ></script>
+
+</body>
+</html>
