@@ -834,16 +834,19 @@ if (generatePixButton) {
               .replace(".", ",")}`;
         }
 
-        const pixKey =
-          state.settings.pixKey || "";
+const pixKeyType =
+  state.settings.pixKeyType || "random";
 
-        const pixName =
-          state.settings.pixName ||
-          "Ailton Souza";
+const pixKey =
+  state.settings.pixKey || "";
 
-        const pixCity =
-          state.settings.pixCity ||
-          "Luziania";
+const pixName =
+  state.settings.pixName ||
+  "Ailton Souza";
+
+const pixCity =
+  state.settings.pixCity ||
+  "Luziania";
 
         const pixPayload = $("#pixPayload");
 
