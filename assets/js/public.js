@@ -1167,7 +1167,10 @@ if (generatePixButton) {
           name: pixName,
           city: pixCity,
           amount: value,
-          // QR estático: "***" é o TXID padrão aceito pelos bancos.\n          // A chave interna do Firebase contém hífens e não é um TXID Pix válido.\n          txid: "***"\n        });
+          // QR estático: "***" é o TXID padrão aceito pelos bancos.
+          // A chave interna do Firebase contém hífens e não é um TXID Pix válido.
+          txid: "***"
+        });
 
         $("#supportModal")
           ?.classList.remove(
