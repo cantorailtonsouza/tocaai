@@ -1243,9 +1243,15 @@ input[type="radio"]{
 }
 
 .request-actions .action-played{
+  color:#1a1408;
+  background:linear-gradient(135deg,var(--gold-2),var(--gold));
+  border-color:var(--gold);
+}
+
+.action-rejected{
   color:#fff;
-  background:#17130b;
-  border-color:#17130b;
+  background:#111;
+  border-color:#111;
 }
 
 .request-actions button:disabled{
