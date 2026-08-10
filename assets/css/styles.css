@@ -1167,3 +1167,45 @@ input[type="radio"]{
     padding-right:24px;
   }
 }
+
+
+/* Hotfix: impede que os estilos genéricos do formulário deformem as chaves. */
+.form label.setting-switch-row{
+  position:relative;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:16px !important;
+  width:100%;
+  padding:14px 0;
+}
+
+.form label.setting-switch-row>span:first-child{
+  display:grid;
+  flex:1;
+  gap:4px;
+  min-width:0;
+}
+
+.form label.setting-switch-row .switch-input{
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  border:0 !important;
+}
+
+.form label.setting-switch-row .switch-visual{
+  display:block !important;
+  width:58px !important;
+  height:34px !important;
+  flex:0 0 58px !important;
+  margin:0 !important;
+  padding:0 !important;
+}
