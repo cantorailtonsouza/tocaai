@@ -257,8 +257,8 @@ function renderRequests(){
         ${request.message?`<p class="request-info-row request-message"><span aria-hidden="true">◯</span><span>Mensagem: ${esc(request.message)}</span></p>`:""}
         ${request.priority?'<span class="tag">★ Prioritário</span>':""}
         <div class="request-actions" aria-label="Finalizar pedido">
-          <button class="btn btn-dark action-played" type="button" data-status="${id}:played">✓ Tocada</button>
-          <button class="btn btn-ghost action-rejected" type="button" data-status="${id}:rejected">Recusar</button>
+          <button class="btn btn-primary action-played" type="button" data-status="${id}:played">Tocar</button>
+          <button class="btn btn-dark action-rejected" type="button" data-status="${id}:rejected">Recusar</button>
         </div>
       </div>
     </details>`;
@@ -274,7 +274,7 @@ function renderRequests(){
       }catch(error){
         console.error("Erro ao atualizar pedido:",error);
         button.disabled=false;
-        button.textContent=status==="played"?"✓ Tocada":"Recusar";
+        button.textContent=status==="played"?"Tocar":"Recusar";
         alert("Não foi possível atualizar o pedido. Tente novamente.");
       }
     };
