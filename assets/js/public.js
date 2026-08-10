@@ -43,7 +43,11 @@ const state = {
 
   selectedValue: null,
 
-  requestKey: null
+  requestKey: null,
+
+  pendingRequest: null,
+
+  requestCommitted: false
 };
 
 function esc(value = "") {
@@ -899,10 +903,17 @@ if (requestForm) {
             Date.now()
         };
 
-        await set(
-          requestReference,
-          requestData
-        );
+        /*
+         * O pedido fica preparado no aparelho até a pessoa
+         * copiar o Pix ou escolher seguir sem apoio. Assim a
+         * prioridade já nasce junto com o pedido e respeita
+         * as regras de segurança do Firebase.
+         */
+        state.pendingRequest =
+          requestData;
+
+        state.requestCommitted =
+          false;
 
         $("#requestModal")
           ?.classList.remove(
@@ -937,6 +948,8 @@ if (requestForm) {
               "open"
             );
         } else {
+          await commitPendingRequest(0);
+
           showDone(
             "Seu pedido foi recebido pelo Ailton Souza."
           );
@@ -1240,6 +1253,39 @@ if (generatePixButton) {
 
 
 /* =====================================================
+   REGISTRAR PEDIDO E PRIORIDADE
+===================================================== */
+
+async function commitPendingRequest(tipValue = 0) {
+  if (state.requestCommitted) {
+    return;
+  }
+
+  if (!state.requestKey || !state.pendingRequest) {
+    throw new Error("Não há pedido pendente para registrar.");
+  }
+
+  const value =
+    Number.isFinite(Number(tipValue)) && Number(tipValue) > 0
+      ? Number(tipValue)
+      : 0;
+
+  await set(
+    ref(db, `requests/${state.requestKey}`),
+    {
+      ...state.pendingRequest,
+      tipValue: value,
+      priority: value > 0,
+      priorityActivatedAt:
+        value > 0 ? Date.now() : null
+    }
+  );
+
+  state.requestCommitted = true;
+}
+
+
+/* =====================================================
    COPIAR PIX
 ===================================================== */
 
@@ -1264,8 +1310,12 @@ if (copyPixButton) {
             pixPayload
           );
 
+        await commitPendingRequest(
+          state.selectedValue
+        );
+
         copyPixButton.textContent =
-          "Copiado!";
+          "Copiado! • Prioridade ativada";
       } catch (error) {
         console.error(
           "Erro ao copiar PIX:",
@@ -1277,12 +1327,23 @@ if (copyPixButton) {
 
           pixField.select();
 
-          document.execCommand(
-            "copy"
+          const copied =
+            document.execCommand(
+              "copy"
+            );
+
+          if (!copied) {
+            throw new Error(
+              "O navegador não confirmou a cópia do Pix."
+            );
+          }
+
+          await commitPendingRequest(
+            state.selectedValue
           );
 
           copyPixButton.textContent =
-            "Copiado!";
+            "Copiado! • Prioridade ativada";
         }
       }
     }
@@ -1298,7 +1359,15 @@ if (finishPixButton) {
   finishPixButton.addEventListener(
     "click",
 
-    () => {
+    async () => {
+      try {
+        await commitPendingRequest(0);
+      } catch (error) {
+        console.error("Erro ao finalizar pedido:", error);
+        alert("Não foi possível registrar o pedido. Tente novamente.");
+        return;
+      }
+
       $("#pixModal")
         ?.classList.remove(
           "open"
@@ -1315,7 +1384,15 @@ if (skipSupportButton) {
   skipSupportButton.addEventListener(
     "click",
 
-    () => {
+    async () => {
+      try {
+        await commitPendingRequest(0);
+      } catch (error) {
+        console.error("Erro ao registrar pedido sem apoio:", error);
+        alert("Não foi possível registrar o pedido. Tente novamente.");
+        return;
+      }
+
       $("#supportModal")
         ?.classList.remove(
           "open"
