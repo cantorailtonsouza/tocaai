@@ -1558,3 +1558,51 @@ input[type="radio"]{
     padding-right:14px;
   }
 }
+
+/* Hotfix mobile: mantém o texto do pedido na coluna central.
+   A seta deixa de participar do grid para não criar uma coluna implícita. */
+@media(max-width:560px){
+  .request-card-reference .request-summary{
+    position:relative;
+    grid-template-columns:48px minmax(0,1fr);
+    grid-template-rows:auto;
+    gap:10px;
+    min-height:76px;
+    padding:11px 42px 11px 12px;
+  }
+
+  .request-card-reference .request-music-icon{
+    grid-column:1;
+    grid-row:1;
+  }
+
+  .request-card-reference .request-summary-text{
+    grid-column:2;
+    grid-row:1;
+    width:100%;
+    min-width:0;
+    padding-right:0;
+  }
+
+  .request-card-reference .request-summary-text strong,
+  .request-card-reference .request-summary-text small{
+    display:block;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .request-card-reference .request-summary::after{
+    position:absolute;
+    top:50%;
+    right:14px;
+    grid-column:auto;
+    grid-row:auto;
+    transform:translateY(-50%);
+  }
+
+  .request-card-reference[open] .request-summary::after{
+    transform:translateY(-50%) rotate(180deg);
+  }
+}
