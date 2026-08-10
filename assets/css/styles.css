@@ -1271,3 +1271,138 @@ input[type="radio"]{
     grid-column:3;
   }
 }
+
+
+/* Layout de pedidos inspirado no cardápio musical, na identidade Toca Aí. */
+.request-card-reference{
+  border-left:4px solid var(--gold);
+  border-radius:18px;
+  background:#fff;
+}
+
+.request-card-reference.is-finished{
+  border-left-color:#bbb;
+  background:#fafafa;
+}
+
+.request-card-reference .request-summary{
+  display:grid;
+  grid-template-columns:54px minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  min-height:82px;
+  padding:14px;
+}
+
+.request-music-icon{
+  width:54px;
+  height:54px;
+  display:grid;
+  place-items:center;
+  color:#8a6212;
+  background:#fff4d8;
+  border-radius:14px;
+  font-size:1.65rem;
+  font-weight:800;
+}
+
+.request-card-reference .request-summary-text strong{
+  font-size:1.03rem;
+  line-height:1.35;
+  white-space:normal;
+}
+
+.request-card-reference .request-summary-text small{
+  font-size:.82rem;
+}
+
+.request-card-reference .request-status{
+  margin-right:30px;
+}
+
+.request-card-reference .request-details{
+  padding:16px 18px 18px;
+  background:var(--surface-2);
+  border-top:1px solid var(--line);
+}
+
+.request-info-row{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin:0 0 12px !important;
+  font-size:.96rem;
+  line-height:1.45;
+}
+
+.request-info-row>span:first-child{
+  width:20px;
+  flex:none;
+  color:var(--muted);
+  text-align:center;
+}
+
+.request-card-reference .request-message{
+  padding:0;
+  background:transparent;
+  border-radius:0;
+}
+
+.request-card-reference .request-actions{
+  justify-content:flex-end;
+  margin-top:16px;
+}
+
+.request-card-reference .request-actions .btn{
+  min-width:112px;
+}
+
+.request-card-reference.is-finished .request-summary-text strong{
+  text-decoration:line-through;
+}
+
+.request-card-reference.is-finished .request-music-icon{
+  color:#777;
+  background:#eee;
+}
+
+@media(max-width:560px){
+  .request-card-reference .request-summary{
+    grid-template-columns:46px minmax(0,1fr);
+    min-height:72px;
+    gap:10px;
+    padding:12px;
+  }
+
+  .request-music-icon{
+    width:46px;
+    height:46px;
+    border-radius:12px;
+    font-size:1.35rem;
+  }
+
+  .request-card-reference .request-status{
+    grid-column:2;
+    grid-row:2;
+    margin:2px 0 0;
+  }
+
+  .request-card-reference .request-summary::after{
+    grid-column:2;
+    grid-row:1/3;
+  }
+
+  .request-card-reference .request-details{
+    padding:14px;
+  }
+
+  .request-card-reference .request-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+
+  .request-card-reference .request-actions .btn{
+    width:100%;
+    min-width:0;
+  }
+}
