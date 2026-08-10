@@ -189,7 +189,14 @@ document.querySelectorAll("[data-hours]").forEach(b=>b.onclick=()=>{
 });
 function renderRequests(){
   const cutoff=Date.now()-state.requestHours*3600000;
-  const entries=Object.entries(state.requests)
+  const showStartedAt=Number(state.settings.showStartedAt||0);
+  const sessionEntries=Object.entries(state.requests)
+    .filter(([,request])=>!showStartedAt||(request?.createdAt||0)>=showStartedAt)
+    .sort((a,b)=>(a[1]?.createdAt||0)-(b[1]?.createdAt||0));
+  const arrivalOrder=new Map(
+    sessionEntries.map(([id],index)=>[id,index+1])
+  );
+  const entries=sessionEntries
     .filter(([,request])=>(request?.createdAt||0)>=cutoff)
     .sort((a,b)=>{
       const aFinished=["played","rejected"].includes(a[1].status);
@@ -198,11 +205,6 @@ function renderRequests(){
       return (a[1].createdAt||0)-(b[1].createdAt||0);
     });
 
-  const arrivalOrder=new Map(
-    Object.entries(state.requests)
-      .sort((a,b)=>(a[1]?.createdAt||0)-(b[1]?.createdAt||0))
-      .map(([id],index)=>[id,index+1])
-  );
   const queue=entries.filter(([,request])=>!["played","rejected"].includes(request.status));
   const tips=entries.reduce((sum,[,request])=>sum+Number(request.tipValue||0),0);
   const counts={};
@@ -213,7 +215,7 @@ function renderRequests(){
     accepted:"Aceito",
     playing:"Tocando",
     played:"Tocada",
-    rejected:"Recusado"
+    rejected:"Recusada"
   };
 
   $("#statRequests").textContent=entries.length;
@@ -222,12 +224,15 @@ function renderRequests(){
   $("#statTop").textContent=top;
 
   $("#requestsList").innerHTML=entries.map(([id,request])=>{
-    const played=request.status==="played";
     const finished=["played","rejected"].includes(request.status);
     const order=arrivalOrder.get(id)||"—";
-    return `<details class="request request-card ${played?"is-played":""} ${finished?"is-finished":""}">
+    const thumbnail=request.thumbnail
+      ? `<img class="request-thumb" src="${esc(request.thumbnail)}" alt="" loading="lazy">`
+      : `<span class="request-thumb request-thumb-placeholder" aria-hidden="true">🎵</span>`;
+    return `<details class="request request-card ${finished?"is-finished":""}">
       <summary class="request-summary">
         <span class="request-order">#${order}</span>
+        ${thumbnail}
         <span class="request-summary-text">
           <strong>${esc(request.song||"Música sem título")}</strong>
           <small>${esc(request.artist||"Artista não informado")}</small>
@@ -238,20 +243,30 @@ function renderRequests(){
         ${request.priority?'<span class="tag">★ Prioritário</span>':""}
         <p><strong>${esc(request.customerName||"Cliente")}</strong>${request.table?` • Mesa ${esc(request.table)}`:""}</p>
         ${request.message?`<p class="request-message">“${esc(request.message)}”</p>`:""}
-        <div class="request-actions" aria-label="Atualizar situação do pedido">
-          <button class="pill" type="button" data-status="${id}:accepted">Aceitar</button>
-          <button class="pill" type="button" data-status="${id}:playing">Tocando</button>
-          <button class="pill" type="button" data-status="${id}:played">Tocada</button>
-          <button class="pill" type="button" data-status="${id}:rejected">Recusar</button>
+        <div class="request-actions" aria-label="Finalizar pedido">
+          <button class="pill action-played" type="button" data-status="${id}:played">✓ Tocada</button>
+          <button class="pill action-rejected" type="button" data-status="${id}:rejected">Recusar</button>
         </div>
       </div>
     </details>`;
   }).join("")||`<div class="card"><h3>Nenhum pedido neste período</h3></div>`;
 
   document.querySelectorAll("[data-status]").forEach(button=>{
-    button.onclick=()=>{
+    button.onclick=async()=>{
       const [id,status]=button.dataset.status.split(":");
-      set(ref(db,`requests/${id}/status`),status);
+      button.disabled=true;
+      button.textContent="Salvando...";
+      try{
+        await update(ref(db,`requests/${id}`),{
+          status,
+          completedAt:Date.now()
+        });
+      }catch(error){
+        console.error("Erro ao atualizar pedido:",error);
+        button.disabled=false;
+        button.textContent=status==="played"?"✓ Tocada":"Recusar";
+        alert("Não foi possível atualizar o pedido. Tente novamente.");
+      }
     };
   });
 }
@@ -276,8 +291,12 @@ function fillSettings(){
   $("#quickLiveToggle").setAttribute("aria-checked",String(showLive));
 }
 $("#quickLiveToggle").onclick=async()=>{
+  const opening=!state.settings.showLive;
   await update(ref(db,"settings"),{
-    showLive:!state.settings.showLive,
+    showLive:opening,
+    ...(opening
+      ? {showStartedAt:Date.now(),showEndedAt:null}
+      : {showEndedAt:Date.now()}),
     updatedAt:Date.now()
   });
 };
@@ -292,6 +311,10 @@ $("#saveSettings").onclick=async()=>{
     return;
   }
 
+  const nextShowLive=$("#cfgShowLive").checked;
+  const openingShow=nextShowLive&&!state.settings.showLive;
+  const closingShow=!nextShowLive&&!!state.settings.showLive;
+
   await set(ref(db,"settings"),{
     ...state.settings,
     eventName:$("#cfgEvent").value.trim(),
@@ -301,7 +324,9 @@ $("#saveSettings").onclick=async()=>{
     pixName:$("#cfgPixName").value.trim(),
     pixCity:$("#cfgPixCity").value.trim(),
     pixEnabled:$("#cfgPixEnabled").checked,
-    showLive:$("#cfgShowLive").checked,
+    showLive:nextShowLive,
+    showStartedAt:openingShow?Date.now():(state.settings.showStartedAt||null),
+    showEndedAt:closingShow?Date.now():(state.settings.showEndedAt||null),
     shareLink:$("#cfgShareLink").value.trim(),
     updatedAt:Date.now()
   });
