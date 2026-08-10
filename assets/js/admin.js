@@ -64,10 +64,18 @@ function renderPlaylists(){
   const entries=Object.entries(state.playlists).filter(([,p])=>(p?.name||"").toLowerCase().includes(term));
   $("#playlistCount").textContent=`${entries.length} playlists`;
   $("#adminPlaylists").innerHTML=entries.map(([id,p])=>{
-    const count=Object.keys(p.songs||{}).length;
+    const songs=Object.values(p.songs||{});
+    const count=songs.length;
     const pct=Math.min(100,count);
+    const latestSong=songs
+      .filter(song=>song?.thumbnail)
+      .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0))[0];
+    const coverImage=p.coverUrl||latestSong?.thumbnail||"";
+    const cover=coverImage
+      ? `<img src="${esc(coverImage)}" alt="Capa da playlist ${esc(p.name||"")}">`
+      : (p.icon||"🎵");
     return `<article class="playlist" data-open="${id}">
-      <div class="cover">${p.coverUrl?`<img src="${esc(p.coverUrl)}" alt="">`:(p.icon||"🎵")}</div>
+      <div class="cover">${cover}</div>
       <div class="meta"><h3>${esc(p.name)}</h3><span class="muted">${count}/100 músicas</span><div class="progress"><span style="width:${pct}%"></span></div></div>
       <button class="toggle ${p.active?"on":""}" data-toggle="${id}"></button>
       <button class="btn btn-ghost" data-edit="${id}">Editar</button>
@@ -187,6 +195,17 @@ $("#songForm").onsubmit=async e=>{
 document.querySelectorAll("[data-hours]").forEach(b=>b.onclick=()=>{
   state.requestHours=Number(b.dataset.hours);document.querySelectorAll("[data-hours]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderRequests();
 });
+function elapsedTime(timestamp){
+  const seconds=Math.max(0,Math.floor((Date.now()-Number(timestamp||0))/1000));
+  if(seconds<60) return "agora";
+  const minutes=Math.floor(seconds/60);
+  if(minutes<60) return `há ${minutes}min`;
+  const hours=Math.floor(minutes/60);
+  if(hours<24) return `há ${hours}h`;
+  const days=Math.floor(hours/24);
+  return `há ${days}d`;
+}
+
 function renderRequests(){
   const cutoff=Date.now()-state.requestHours*3600000;
   const showStartedAt=Number(state.settings.showStartedAt||0);
@@ -210,13 +229,7 @@ function renderRequests(){
   const counts={};
   entries.forEach(([,request])=>counts[request.song]=(counts[request.song]||0)+1);
   const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—";
-  const statusLabels={
-    new:"Novo",
-    accepted:"Aceito",
-    playing:"Tocando",
-    played:"Tocada",
-    rejected:"Recusada"
-  };
+  const statusLabels={new:"Novo",accepted:"Aceito",playing:"Tocando",played:"Tocada",rejected:"Recusada"};
 
   $("#statRequests").textContent=entries.length;
   $("#statQueue").textContent=queue.length;
@@ -226,26 +239,26 @@ function renderRequests(){
   $("#requestsList").innerHTML=entries.map(([id,request])=>{
     const finished=["played","rejected"].includes(request.status);
     const order=arrivalOrder.get(id)||"—";
-    const thumbnail=request.thumbnail
-      ? `<img class="request-thumb" src="${esc(request.thumbnail)}" alt="" loading="lazy">`
-      : `<span class="request-thumb request-thumb-placeholder" aria-hidden="true">🎵</span>`;
-    return `<details class="request request-card ${finished?"is-finished":""}">
+    const title=[request.song,request.artist].filter(Boolean).join(" — ");
+    return `<details class="request request-card request-card-reference ${finished?"is-finished":""}">
       <summary class="request-summary">
-        <span class="request-order">#${order}</span>
-        ${thumbnail}
+        <span class="request-music-icon" aria-hidden="true">♫</span>
         <span class="request-summary-text">
-          <strong>${esc(request.song||"Música sem título")}</strong>
-          <small>${esc(request.artist||"Artista não informado")}</small>
+          <strong>${esc(title||"Música sem título")}</strong>
+          <small>◷ ${esc(elapsedTime(request.createdAt))}</small>
         </span>
         <span class="tag request-status">${esc(statusLabels[request.status]||"Novo")}</span>
       </summary>
       <div class="request-details">
+        <p class="request-info-row">
+          <span aria-hidden="true">♙</span>
+          <span>Pedido por <strong>${esc(request.customerName||"Cliente")}</strong>${request.table?` • Mesa ${esc(request.table)}`:""}</span>
+        </p>
+        ${request.message?`<p class="request-info-row request-message"><span aria-hidden="true">◯</span><span>Mensagem: ${esc(request.message)}</span></p>`:""}
         ${request.priority?'<span class="tag">★ Prioritário</span>':""}
-        <p><strong>${esc(request.customerName||"Cliente")}</strong>${request.table?` • Mesa ${esc(request.table)}`:""}</p>
-        ${request.message?`<p class="request-message">“${esc(request.message)}”</p>`:""}
         <div class="request-actions" aria-label="Finalizar pedido">
-          <button class="pill action-played" type="button" data-status="${id}:played">✓ Tocada</button>
-          <button class="pill action-rejected" type="button" data-status="${id}:rejected">Recusar</button>
+          <button class="btn btn-dark action-played" type="button" data-status="${id}:played">✓ Tocada</button>
+          <button class="btn btn-ghost action-rejected" type="button" data-status="${id}:rejected">Recusar</button>
         </div>
       </div>
     </details>`;
@@ -257,10 +270,7 @@ function renderRequests(){
       button.disabled=true;
       button.textContent="Salvando...";
       try{
-        await update(ref(db,`requests/${id}`),{
-          status,
-          completedAt:Date.now()
-        });
+        await update(ref(db,`requests/${id}`),{status,completedAt:Date.now()});
       }catch(error){
         console.error("Erro ao atualizar pedido:",error);
         button.disabled=false;
