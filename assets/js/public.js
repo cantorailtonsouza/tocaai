@@ -1052,6 +1052,79 @@ document
    GERAR PIX
 ===================================================== */
 
+function pixNormalizeText(value, maxLength) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9 .\-/]/g, "")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function pixField(id, value) {
+  const textValue = String(value);
+  return id + String(textValue.length).padStart(2, "0") + textValue;
+}
+
+function pixCrc16(payload) {
+  let crc = 0xffff;
+
+  for (let index = 0; index < payload.length; index += 1) {
+    crc ^= payload.charCodeAt(index) << 8;
+
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc & 0x8000)
+        ? ((crc << 1) ^ 0x1021) & 0xffff
+        : (crc << 1) & 0xffff;
+    }
+  }
+
+  return crc
+    .toString(16)
+    .toUpperCase()
+    .padStart(4, "0");
+}
+
+function buildPixPayload({
+  key,
+  name,
+  city,
+  amount,
+  txid
+}) {
+  const pixKey = String(key || "").trim();
+
+  if (!pixKey) {
+    throw new Error("A chave Pix não foi configurada.");
+  }
+
+  const merchantAccount =
+    pixField("00", "br.gov.bcb.pix") +
+    pixField("01", pixKey);
+
+  const additionalData =
+    pixField(
+      "05",
+      pixNormalizeText(txid, 25) || "***"
+    );
+
+  const payloadWithoutCrc =
+    pixField("00", "01") +
+    pixField("01", "11") +
+    pixField("26", merchantAccount) +
+    pixField("52", "0000") +
+    pixField("53", "986") +
+    pixField("54", Number(amount).toFixed(2)) +
+    pixField("58", "BR") +
+    pixField("59", pixNormalizeText(name, 25)) +
+    pixField("60", pixNormalizeText(city, 15)) +
+    pixField("62", additionalData) +
+    "6304";
+
+  return payloadWithoutCrc + pixCrc16(payloadWithoutCrc);
+}
+
 if (generatePixButton) {
   generatePixButton.addEventListener(
     "click",
@@ -1077,23 +1150,25 @@ if (generatePixButton) {
         "Gerando PIX...";
 
       try {
-        await Promise.all([
-          set(
-            ref(
-              db,
-              `requests/${state.requestKey}/tipValue`
-            ),
-            value
-          ),
+        const pixKey =
+          state.settings.pixKey ||
+          "";
 
-          set(
-            ref(
-              db,
-              `requests/${state.requestKey}/priority`
-            ),
-            value >= 20
-          )
-        ]);
+        const pixName =
+          state.settings.pixName ||
+          "Ailton Jesus de Souza";
+
+        const pixCity =
+          state.settings.pixCity ||
+          "Luziania";
+
+        const payload = buildPixPayload({
+          key: pixKey,
+          name: pixName,
+          city: pixCity,
+          amount: value,
+          txid: state.requestKey
+        });
 
         $("#supportModal")
           ?.classList.remove(
@@ -1113,37 +1188,14 @@ if (generatePixButton) {
               )}`;
         }
 
-        const pixKey =
-          state.settings.pixKey ||
-          "";
-
-        const pixName =
-          state.settings.pixName ||
-          "Ailton Jesus de Souza";
-
-        const pixCity =
-          state.settings.pixCity ||
-          "Luziania";
-
         const pixPayload =
           $("#pixPayload");
 
         if (pixPayload) {
           pixPayload.value =
-            `PIX|CHAVE:${pixKey}` +
-            `|NOME:${pixName}` +
-            `|CIDADE:${pixCity}` +
-            `|VALOR:${value.toFixed(
-              2
-            )}` +
-            `|REF:${state.requestKey}`;
+            payload;
         }
 
-        /*
-         * Exibe somente o nome do recebedor.
-         * O tipo da chave permanece apenas
-         * no painel interno.
-         */
         const supportReceiver =
           $("#supportPixReceiver");
 
