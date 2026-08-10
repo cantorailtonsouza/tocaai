@@ -1211,6 +1211,11 @@ if (generatePixButton) {
             payload;
         }
 
+        if (copyPixButton) {
+          copyPixButton.textContent =
+            "Copiar Pix e ativar prioridade";
+        }
+
         const supportReceiver =
           $("#supportPixReceiver");
 
