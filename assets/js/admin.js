@@ -5,7 +5,17 @@ import {
 
 const $ = s=>document.querySelector(s);
 const YOUTUBE_SEARCH_API = "https://tocaai-spotify.cantorailtonsouza.workers.dev/search";
-const state = { settings:{}, playlists:{}, requests:{}, selectedPlaylistId:null, requestHours:1, youtubeResults:[] };
+const VALID_TABS = ["playlistsTab", "requestsTab", "shareTab", "configTab"];
+const SAVED_TAB = sessionStorage.getItem("tocaaiAdminTab");
+const state = {
+  settings:{},
+  playlists:{},
+  requests:{},
+  selectedPlaylistId:null,
+  requestHours:1,
+  youtubeResults:[],
+  activeTab:VALID_TABS.includes(SAVED_TAB) ? SAVED_TAB : "playlistsTab"
+};
 function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 
 $("#loginForm").onsubmit = async e=>{
@@ -29,12 +39,25 @@ function startPanel(){
   onValue(ref(db,"requests"),s=>{state.requests=s.val()||{};renderRequests();});
 }
 
-document.querySelectorAll(".bottom-nav button").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll("main>section").forEach(s=>s.hidden=true);
-  $("#"+b.dataset.tab).hidden=false;
-  document.querySelectorAll(".bottom-nav button").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
+function activateTab(tabId){
+  const safeTab=VALID_TABS.includes(tabId)?tabId:"playlistsTab";
+  state.activeTab=safeTab;
+  sessionStorage.setItem("tocaaiAdminTab",safeTab);
+  document.querySelectorAll("main>section").forEach(section=>{
+    section.hidden=section.id!==safeTab;
+  });
+  document.querySelectorAll(".bottom-nav button").forEach(button=>{
+    const active=button.dataset.tab===safeTab;
+    button.classList.toggle("active",active);
+    button.setAttribute("aria-current",active?"page":"false");
+  });
+}
+
+document.querySelectorAll(".bottom-nav button").forEach(button=>{
+  button.onclick=()=>activateTab(button.dataset.tab);
 });
+
+activateTab(state.activeTab);
 
 function renderPlaylists(){
   const term=($("#adminPlaylistSearch").value||"").toLowerCase();
@@ -166,18 +189,72 @@ document.querySelectorAll("[data-hours]").forEach(b=>b.onclick=()=>{
 });
 function renderRequests(){
   const cutoff=Date.now()-state.requestHours*3600000;
-  const entries=Object.entries(state.requests).filter(([,r])=>(r?.createdAt||0)>=cutoff).sort((a,b)=>(b[1].priority-a[1].priority)||((a[1].createdAt||0)-(b[1].createdAt||0)));
-  const queue=entries.filter(([,r])=>!["played","rejected"].includes(r.status));
-  const tips=entries.reduce((s,[,r])=>s+Number(r.tipValue||0),0);
-  const counts={};entries.forEach(([,r])=>counts[r.song]=(counts[r.song]||0)+1);const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—";
-  $("#statRequests").textContent=entries.length;$("#statQueue").textContent=queue.length;$("#statTips").textContent=`R$ ${tips.toFixed(0)}`;$("#statTop").textContent=top;
-  $("#requestsList").innerHTML=entries.map(([id,r])=>`<article class="request">
-    <div class="meta">${r.priority?'<span class="tag">★ Prioritário</span>':''}<h3>${esc(r.song)}</h3><p class="muted">${esc(r.artist)}</p><p><strong>${esc(r.customerName)}</strong>${r.table?` • Mesa ${esc(r.table)}`:""}</p>${r.message?`<p>“${esc(r.message)}”</p>`:""}<span class="tag">${esc(r.status||"new")}</span>
-      <div class="request-actions"><button class="pill" data-status="${id}:accepted">Aceitar</button><button class="pill" data-status="${id}:playing">Tocando</button><button class="pill" data-status="${id}:played">Tocada</button><button class="pill" data-status="${id}:rejected">Recusar</button></div>
-    </div></article>`).join("")||`<div class="card"><h3>Nenhum pedido neste período</h3></div>`;
-  document.querySelectorAll("[data-status]").forEach(b=>b.onclick=()=>{const [id,status]=b.dataset.status.split(":");set(ref(db,`requests/${id}/status`),status);});
-}
+  const entries=Object.entries(state.requests)
+    .filter(([,request])=>(request?.createdAt||0)>=cutoff)
+    .sort((a,b)=>{
+      const aFinished=["played","rejected"].includes(a[1].status);
+      const bFinished=["played","rejected"].includes(b[1].status);
+      if(aFinished!==bFinished) return Number(aFinished)-Number(bFinished);
+      return (a[1].createdAt||0)-(b[1].createdAt||0);
+    });
 
+  const arrivalOrder=new Map(
+    Object.entries(state.requests)
+      .sort((a,b)=>(a[1]?.createdAt||0)-(b[1]?.createdAt||0))
+      .map(([id],index)=>[id,index+1])
+  );
+  const queue=entries.filter(([,request])=>!["played","rejected"].includes(request.status));
+  const tips=entries.reduce((sum,[,request])=>sum+Number(request.tipValue||0),0);
+  const counts={};
+  entries.forEach(([,request])=>counts[request.song]=(counts[request.song]||0)+1);
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—";
+  const statusLabels={
+    new:"Novo",
+    accepted:"Aceito",
+    playing:"Tocando",
+    played:"Tocada",
+    rejected:"Recusado"
+  };
+
+  $("#statRequests").textContent=entries.length;
+  $("#statQueue").textContent=queue.length;
+  $("#statTips").textContent=`R$ ${tips.toFixed(0)}`;
+  $("#statTop").textContent=top;
+
+  $("#requestsList").innerHTML=entries.map(([id,request])=>{
+    const played=request.status==="played";
+    const finished=["played","rejected"].includes(request.status);
+    const order=arrivalOrder.get(id)||"—";
+    return `<details class="request request-card ${played?"is-played":""} ${finished?"is-finished":""}">
+      <summary class="request-summary">
+        <span class="request-order">#${order}</span>
+        <span class="request-summary-text">
+          <strong>${esc(request.song||"Música sem título")}</strong>
+          <small>${esc(request.artist||"Artista não informado")}</small>
+        </span>
+        <span class="tag request-status">${esc(statusLabels[request.status]||"Novo")}</span>
+      </summary>
+      <div class="request-details">
+        ${request.priority?'<span class="tag">★ Prioritário</span>':""}
+        <p><strong>${esc(request.customerName||"Cliente")}</strong>${request.table?` • Mesa ${esc(request.table)}`:""}</p>
+        ${request.message?`<p class="request-message">“${esc(request.message)}”</p>`:""}
+        <div class="request-actions" aria-label="Atualizar situação do pedido">
+          <button class="pill" type="button" data-status="${id}:accepted">Aceitar</button>
+          <button class="pill" type="button" data-status="${id}:playing">Tocando</button>
+          <button class="pill" type="button" data-status="${id}:played">Tocada</button>
+          <button class="pill" type="button" data-status="${id}:rejected">Recusar</button>
+        </div>
+      </div>
+    </details>`;
+  }).join("")||`<div class="card"><h3>Nenhum pedido neste período</h3></div>`;
+
+  document.querySelectorAll("[data-status]").forEach(button=>{
+    button.onclick=()=>{
+      const [id,status]=button.dataset.status.split(":");
+      set(ref(db,`requests/${id}/status`),status);
+    };
+  });
+}
 function fillSettings(){
   $("#cfgEvent").value=state.settings.eventName||"Repertório da noite";
   $("#cfgIntro").value=state.settings.intro||"Escolha uma playlist, encontre sua música favorita e envie seu pedido.";
@@ -192,8 +269,19 @@ function fillSettings(){
   $("#cfgShareLink").value=state.settings.shareLink||"https://ailtonsouza.com.br/tocaai";
 
   $("#shareLink").value=state.settings.shareLink||"https://ailtonsouza.com.br/tocaai";
-  $("#liveBadge").textContent=state.settings.showLive?"● AO VIVO":"● FECHADO";
+  const showLive=!!state.settings.showLive;
+  $("#liveBadge").textContent=showLive?"● AO VIVO":"● FECHADO";
+  $("#liveBadge").classList.toggle("green",showLive);
+  $("#quickLiveToggle").classList.toggle("on",showLive);
+  $("#quickLiveToggle").setAttribute("aria-checked",String(showLive));
 }
+$("#quickLiveToggle").onclick=async()=>{
+  await update(ref(db,"settings"),{
+    showLive:!state.settings.showLive,
+    updatedAt:Date.now()
+  });
+};
+
 $("#saveSettings").onclick=async()=>{
   const pixKeyType=$("#cfgPixKeyType").value;
   const pixKey=$("#cfgPixKey").value.trim();
