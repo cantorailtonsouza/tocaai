@@ -1406,3 +1406,155 @@ input[type="radio"]{
     min-width:0;
   }
 }
+
+
+/* Refinamento da fila para uso em celular. */
+.request-music-icon{
+  position:relative;
+}
+
+.request-music-icon b{
+  font:inherit;
+}
+
+.request-music-icon small{
+  position:absolute;
+  right:-5px;
+  bottom:-5px;
+  min-width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  padding:0 4px;
+  color:#fff;
+  background:#17130b;
+  border:2px solid #fff;
+  border-radius:999px;
+  font-size:.65rem;
+  font-weight:900;
+}
+
+@media(max-width:560px){
+  #requestsTab{
+    padding-bottom:18px;
+  }
+
+  #requestsTab>.section-head{
+    position:sticky;
+    top:0;
+    z-index:5;
+    margin:-4px -2px 12px;
+    padding:10px 2px;
+    background:var(--bg);
+  }
+
+  #requestsTab>.section-head h2{
+    font-size:1.65rem;
+    line-height:1.1;
+  }
+
+  #requestsTab .request-live-control .tag{
+    display:inline-block;
+    padding:7px 10px;
+  }
+
+  #requestsTab .request-live-control .toggle{
+    width:50px;
+    height:30px;
+  }
+
+  #requestsTab .request-live-control .toggle::after{
+    width:24px;
+    height:24px;
+  }
+
+  #requestsTab .request-live-control .toggle.on::after{
+    left:23px;
+  }
+
+  #requestsTab .stats{
+    display:none;
+  }
+
+  #requestsTab>.toolbar{
+    margin:0 -2px 14px !important;
+    gap:8px;
+    padding:2px 2px 7px;
+  }
+
+  #requestsTab>.toolbar .pill{
+    min-width:58px;
+    padding:11px 14px;
+    text-align:center;
+  }
+
+  #requestsList{
+    gap:10px;
+    margin-top:0 !important;
+  }
+
+  .request-card-reference{
+    border-left-width:4px;
+    border-radius:16px;
+    box-shadow:0 4px 14px rgba(0,0,0,.05);
+  }
+
+  .request-card-reference .request-summary{
+    grid-template-columns:48px minmax(0,1fr);
+    min-height:78px;
+    padding:11px 12px;
+  }
+
+  .request-card-reference .request-summary-text strong{
+    padding-right:24px;
+    font-size:.97rem;
+    line-height:1.25;
+  }
+
+  .request-card-reference .request-summary-text small{
+    margin-top:2px;
+  }
+
+  .request-card-reference .request-status{
+    display:none;
+  }
+
+  .request-card-reference .request-details{
+    padding:14px 12px;
+  }
+
+  .request-card-reference .request-actions{
+    position:static;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:14px;
+  }
+
+  .request-card-reference.is-finished{
+    opacity:.78;
+  }
+
+  .request-card-reference.is-finished .request-summary-text strong{
+    color:#555;
+  }
+
+  .request-music-icon small{
+    right:-4px;
+    bottom:-4px;
+  }
+
+  .bottom-nav{
+    padding-bottom:max(0px,env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav button{
+    min-height:66px;
+    font-size:.78rem;
+  }
+
+  main.wrap.section{
+    padding-left:14px;
+    padding-right:14px;
+  }
+}

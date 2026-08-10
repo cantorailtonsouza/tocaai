@@ -242,7 +242,7 @@ function renderRequests(){
     const title=[request.song,request.artist].filter(Boolean).join(" — ");
     return `<details class="request request-card request-card-reference ${finished?"is-finished":""}">
       <summary class="request-summary">
-        <span class="request-music-icon" aria-hidden="true">♫</span>
+        <span class="request-music-icon" aria-hidden="true"><b>♫</b><small>#${order}</small></span>
         <span class="request-summary-text">
           <strong>${esc(title||"Música sem título")}</strong>
           <small>◷ ${esc(elapsedTime(request.createdAt))}</small>
