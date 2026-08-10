@@ -1209,3 +1209,65 @@ input[type="radio"]{
   margin:0 !important;
   padding:0 !important;
 }
+
+
+/* Fila por show, miniaturas e ações finais. */
+.request-summary{
+  grid-template-columns:auto 58px minmax(0,1fr) auto;
+}
+
+.request-thumb{
+  width:58px;
+  height:44px;
+  display:block;
+  object-fit:cover;
+  background:#f3ead7;
+  border-radius:10px;
+}
+
+.request-thumb-placeholder{
+  display:grid;
+  place-items:center;
+  font-size:1.35rem;
+}
+
+.request-card.is-finished .request-summary-text,
+.request-card.is-finished .request-details>p{
+  opacity:.58;
+  text-decoration:line-through;
+}
+
+.request-card.is-finished .request-status{
+  color:#666;
+  background:#ececec;
+}
+
+.request-actions .action-played{
+  color:#fff;
+  background:#17130b;
+  border-color:#17130b;
+}
+
+.request-actions button:disabled{
+  opacity:.6;
+  cursor:wait;
+}
+
+@media(max-width:560px){
+  .request-summary{
+    grid-template-columns:auto 50px minmax(0,1fr);
+  }
+
+  .request-thumb{
+    width:50px;
+    height:42px;
+  }
+
+  .request-summary .request-status{
+    grid-column:3;
+  }
+
+  .request-summary::after{
+    grid-column:3;
+  }
+}
