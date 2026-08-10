@@ -1,7 +1,7 @@
 import {
   auth, db, onAuthStateChanged, signInWithEmailAndPassword, signOut,
   ref, get, set, update, push, remove, onValue
-} from "../../firebase/client.js";
+} from "../../firebase/client.js?v=20260810-0940";
 
 const $ = s=>document.querySelector(s);
 const YOUTUBE_SEARCH_API = "https://tocaai-spotify.cantorailtonsouza.workers.dev/search";
