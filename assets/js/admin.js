@@ -221,6 +221,14 @@ function renderRequests(){
       const aFinished=["played","rejected"].includes(a[1].status);
       const bFinished=["played","rejected"].includes(b[1].status);
       if(aFinished!==bFinished) return Number(aFinished)-Number(bFinished);
+
+      if(!aFinished&&!bFinished){
+        const priorityDifference=
+          Number(b[1].tipValue||0)-Number(a[1].tipValue||0);
+
+        if(priorityDifference!==0) return priorityDifference;
+      }
+
       return (a[1].createdAt||0)-(b[1].createdAt||0);
     });
 
@@ -240,12 +248,17 @@ function renderRequests(){
     const finished=["played","rejected"].includes(request.status);
     const order=arrivalOrder.get(id)||"—";
     const title=[request.song,request.artist].filter(Boolean).join(" — ");
-    return `<details class="request request-card request-card-reference ${finished?"is-finished":""}">
+    const priorityValue=Number(request.tipValue||0);
+    const priorityBadge=!finished&&priorityValue>0
+      ? `<span class="priority-badge" aria-label="Prioridade de ${priorityValue.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}"><span aria-hidden="true">◆</span> Prioridade R$ ${priorityValue.toFixed(0)}</span>`
+      : "";
+    return `<details class="request request-card request-card-reference ${finished?"is-finished":""} ${priorityValue>0?"has-priority":""}">
       <summary class="request-summary">
         <span class="request-music-icon" aria-hidden="true"><b>♫</b><small>#${order}</small></span>
         <span class="request-summary-text">
           <strong>${esc(title||"Música sem título")}</strong>
           <small>◷ ${esc(elapsedTime(request.createdAt))}</small>
+          ${priorityBadge}
         </span>
         <span class="tag request-status">${esc(statusLabels[request.status]||"Novo")}</span>
       </summary>
@@ -255,7 +268,7 @@ function renderRequests(){
           <span>Pedido por <strong>${esc(request.customerName||"Cliente")}</strong>${request.table?` • Mesa ${esc(request.table)}`:""}</span>
         </p>
         ${request.message?`<p class="request-info-row request-message"><span aria-hidden="true">◯</span><span>Mensagem: ${esc(request.message)}</span></p>`:""}
-        ${request.priority?'<span class="tag">★ Prioritário</span>':""}
+        ${priorityValue>0?`<span class="priority-detail">◆ Contribuição selecionada: R$ ${priorityValue.toFixed(2).replace(".",",")}</span>`:""}
         <div class="request-actions" aria-label="Finalizar pedido">
           <button class="btn btn-primary action-played" type="button" data-status="${id}:played">Tocar</button>
           <button class="btn btn-dark action-rejected" type="button" data-status="${id}:rejected">Recusar</button>
