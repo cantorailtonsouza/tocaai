@@ -363,8 +363,11 @@
       autocomplete="on"
     >
       <a
+        class="logo-link"
         href="https://ailtonsouza.com.br/"
-        aria-label="Ir para o site oficial de Ailton Souza"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Abrir o site oficial de Ailton Souza"
       >
         <img
           class="login-logo"
@@ -468,9 +471,11 @@
 
         <div class="brand">
           <a
-            class="brand-logo-link"
+            class="logo-link"
             href="https://ailtonsouza.com.br/"
-            aria-label="Ir para o site oficial de Ailton Souza"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Abrir o site oficial de Ailton Souza"
           >
             <img
               src="../assets/img/logo-ailton-souza.png"
@@ -844,34 +849,38 @@
               >
             </label>
 
-            <label class="setting-switch-row">
-              <span>
-                <strong>Apoio opcional via Pix</strong>
-                <small class="muted">Oferecer contribuição após o pedido.</small>
-              </span>
-
+            <label class="setting-toggle">
               <input
                 id="cfgPixEnabled"
                 class="switch-input"
                 type="checkbox"
               >
 
-              <span class="toggle switch-visual" aria-hidden="true"></span>
-            </label>
-
-            <label class="setting-switch-row">
-              <span>
-                <strong>Modo Show — aceitar pedidos</strong>
-                <small class="muted">Abrir ou fechar os pedidos do público.</small>
+              <span class="setting-toggle-copy">
+                <strong>Ativar apoio opcional via Pix</strong>
+                <small>Exibe a opção de contribuição após o pedido.</small>
               </span>
 
+              <span class="toggle setting-toggle-control" aria-hidden="true"></span>
+
+              <span class="setting-toggle-state" aria-hidden="true"></span>
+            </label>
+
+            <label class="setting-toggle">
               <input
                 id="cfgShowLive"
                 class="switch-input"
                 type="checkbox"
               >
 
-              <span class="toggle switch-visual" aria-hidden="true"></span>
+              <span class="setting-toggle-copy">
+                <strong>Modo Show — aceitar pedidos</strong>
+                <small>Abre ou fecha o envio de pedidos na página pública.</small>
+              </span>
+
+              <span class="toggle setting-toggle-control" aria-hidden="true"></span>
+
+              <span class="setting-toggle-state" aria-hidden="true"></span>
             </label>
 
             <div class="spotify-note">

@@ -5,17 +5,9 @@ import {
 
 const $ = s=>document.querySelector(s);
 const YOUTUBE_SEARCH_API = "https://tocaai-spotify.cantorailtonsouza.workers.dev/search";
-const VALID_TABS = ["playlistsTab", "requestsTab", "shareTab", "configTab"];
-const SAVED_TAB = sessionStorage.getItem("tocaaiAdminTab");
-const state = {
-  settings:{},
-  playlists:{},
-  requests:{},
-  selectedPlaylistId:null,
-  requestHours:1,
-  youtubeResults:[],
-  activeTab:VALID_TABS.includes(SAVED_TAB) ? SAVED_TAB : "playlistsTab"
-};
+const ACTIVE_TAB_KEY = "tocaai-admin-active-tab";
+const VALID_TABS = new Set(["playlistsTab","requestsTab","shareTab","configTab"]);
+const state = { settings:{}, playlists:{}, requests:{}, selectedPlaylistId:null, requestHours:1, youtubeResults:[] };
 function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 
 $("#loginForm").onsubmit = async e=>{
@@ -30,7 +22,7 @@ $("#openPublic").onclick=()=>window.open("../","_blank");
 
 onAuthStateChanged(auth, user=>{
   $("#loginView").hidden=!!user;$("#panelView").hidden=!user;
-  if(user) startPanel();
+  if(user){restoreActiveTab();startPanel();}
 });
 
 function startPanel(){
@@ -39,25 +31,21 @@ function startPanel(){
   onValue(ref(db,"requests"),s=>{state.requests=s.val()||{};renderRequests();});
 }
 
-function activateTab(tabId){
-  const safeTab=VALID_TABS.includes(tabId)?tabId:"playlistsTab";
-  state.activeTab=safeTab;
-  sessionStorage.setItem("tocaaiAdminTab",safeTab);
-  document.querySelectorAll("main>section").forEach(section=>{
-    section.hidden=section.id!==safeTab;
-  });
-  document.querySelectorAll(".bottom-nav button").forEach(button=>{
-    const active=button.dataset.tab===safeTab;
-    button.classList.toggle("active",active);
-    button.setAttribute("aria-current",active?"page":"false");
-  });
+function activateTab(tabId,{save=true}={}){
+  if(!VALID_TABS.has(tabId))tabId="playlistsTab";
+  document.querySelectorAll("main>section").forEach(s=>s.hidden=true);
+  $("#"+tabId).hidden=false;
+  document.querySelectorAll(".bottom-nav button").forEach(x=>x.classList.remove("active"));
+  document.querySelector(`.bottom-nav button[data-tab="${tabId}"]`)?.classList.add("active");
+  if(save)localStorage.setItem(ACTIVE_TAB_KEY,tabId);
+  window.scrollTo({top:0,behavior:"auto"});
 }
 
-document.querySelectorAll(".bottom-nav button").forEach(button=>{
-  button.onclick=()=>activateTab(button.dataset.tab);
-});
+function restoreActiveTab(){
+  activateTab(localStorage.getItem(ACTIVE_TAB_KEY)||"playlistsTab",{save:false});
+}
 
-activateTab(state.activeTab);
+document.querySelectorAll(".bottom-nav button").forEach(b=>b.onclick=()=>activateTab(b.dataset.tab));
 
 function renderPlaylists(){
   const term=($("#adminPlaylistSearch").value||"").toLowerCase();
@@ -72,8 +60,8 @@ function renderPlaylists(){
       .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0))[0];
     const coverImage=p.coverUrl||latestSong?.thumbnail||"";
     const cover=coverImage
-      ? `<img src="${esc(coverImage)}" alt="Capa da playlist ${esc(p.name||"")}">`
-      : (p.icon||"🎵");
+      ? `<img src="${esc(coverImage)}" alt="Capa da playlist ${esc(p.name||"")}" loading="lazy">`
+      : esc(p.icon||"🎵");
     return `<article class="playlist" data-open="${id}">
       <div class="cover">${cover}</div>
       <div class="meta"><h3>${esc(p.name)}</h3><span class="muted">${count}/100 músicas</span><div class="progress"><span style="width:${pct}%"></span></div></div>

@@ -589,7 +589,17 @@ function renderSongs() {
               : "";
 
           return `
-            <article class="song">
+            <button
+              class="song song-row"
+              type="button"
+              data-song="${esc(
+                id
+              )}"
+              aria-label="Pedir ${esc(
+                song.title ||
+                  "música sem título"
+              )}"
+            >
 
               <div class="song-main">
 
@@ -617,17 +627,14 @@ function renderSongs() {
 
               </div>
 
-              <button
-                class="btn btn-primary"
-                type="button"
-                data-song="${esc(
-                  id
-                )}"
+              <span
+                class="song-open-icon"
+                aria-hidden="true"
               >
-                Pedir música
-              </button>
+                ›
+              </span>
 
-            </article>
+            </button>
           `;
         }
       )
